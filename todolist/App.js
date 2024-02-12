@@ -19,10 +19,10 @@ const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Home">
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="Space" component={SpaceScreen} />
-        <Stack.Screen name="Message" component={MessageScreen} />
-        <Stack.Screen name="User" component={UserScreen} />
+        <Stack.Screen name="Home" component={HomeScreen} options={{headerShown: false}} />
+        <Stack.Screen name="Space" component={SpaceScreen} options={{headerShown: false}}  />
+        <Stack.Screen name="Message" component={MessageScreen} options={{headerShown: false}}/>
+        <Stack.Screen name="User" component={UserScreen} options={{headerShown: false}}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

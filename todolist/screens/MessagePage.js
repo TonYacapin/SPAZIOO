@@ -1,14 +1,14 @@
-import React, { Component } from 'react'
-import { Text, View } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
+import React from 'react'
 
-export class MessagePage extends Component {
-  render() {
-    return (
-      <View>
-        <Text> MessagePage </Text>
-      </View>
-    )
-  }
+const MessagePage = () => {
+  return (
+    <View>
+      <Text>MessagePage</Text>
+    </View>
+  )
 }
 
 export default MessagePage
+
+const styles = StyleSheet.create({})

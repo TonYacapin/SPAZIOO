@@ -14,7 +14,7 @@ const HomePage = () => {
         <View style={styles.container}>
             <View style={styles.header}>
                 <Text style={styles.title}>
-                    <Image source={espasyoIcon} style={styles.espasyoIcon} /> Espasyo
+                    <Image source={espasyoIcon} style={styles.espasyoIcon} /> Spazio
                 </Text>
                 <TouchableOpacity onPress={() => console.log('Hamburger icon pressed')}>
                     <FontAwesome
@@ -25,14 +25,14 @@ const HomePage = () => {
                     />
                 </TouchableOpacity>
             </View>
-            <Text style={styles.welcomeText}>Welcome to Espasyo</Text>
+            <Text style={styles.welcomeText}>Welcome to Spazio</Text>
 
             <View style={styles.content}>
                 <View style={styles.buttonsContainer}>
-                    <TouchableOpacity style={styles.button} onPress={() => navigation.replace('Space')}>
+                    <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Space')}>
                         <Icon2 name="landmark" size={30} color="black" />
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.button}>
+                    <TouchableOpacity style={styles.button} onPress={() => navigation.replace('Message') }>
                         <Icon2 name="envelope" size={30} color="black" />
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.button}>
@@ -58,6 +58,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: 20,
+
+       
         width: '100%',
     },
     hamburgerIcon: {
@@ -80,6 +82,7 @@ const styles = StyleSheet.create({
         color: 'orange',
         marginBottom: 20,
         fontWeight: 'bold',
+      
     },
     buttonsContainer: {
         flexDirection: 'row',
