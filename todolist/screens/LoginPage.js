@@ -10,10 +10,15 @@ const LoginPage = () => {
     const [password, setPassword] = useState('');
 
     const handleLogin = () => {
-        // Add your login logic here
-        console.log('Username:', username);
-        console.log('Password:', password);
-        navigation.replace('Home');
+        if (username === 'Admin' && password === 'Admin') {
+            // Username and password are correct, navigate to the homepage
+            console.log('Login successful!');
+            navigation.replace('Home');
+        } else {
+            // Username or password is incorrect, show an error message or take appropriate action
+            console.log('Invalid username or password');
+            // You can show an error message to the user, clear the input fields, etc.
+        }
     };
 
     return (
