@@ -16,7 +16,7 @@ const HomePage = () => {
                 <Text style={styles.title}>
                     <Image source={espasyoIcon} style={styles.espasyoIcon} /> Spazio
                 </Text>
-                <TouchableOpacity onPress={() => console.log('Hamburger icon pressed')}>
+                <TouchableOpacity onPress={() => navigation.navigate('Login')}>
                     <FontAwesome
                         name="bars"
                         size={24}
