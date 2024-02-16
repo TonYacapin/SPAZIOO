@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 
 import espasyoLogo from 'C:/Users/Administrator/Desktop/TestProject/todolist/assets/Logo1.png';
 const LoginPage = () => {
-    const navigation = useNavigation();
+   
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
@@ -20,6 +20,7 @@ const LoginPage = () => {
             // You can show an error message to the user, clear the input fields, etc.
         }
     };
+    const navigation = useNavigation();
 
     return (
         <View style={styles.container}>
@@ -48,6 +49,12 @@ const LoginPage = () => {
             <TouchableOpacity style={styles.loginBtn} onPress={handleLogin}>
                 <Text style={styles.loginText}>LOGIN</Text>
             </TouchableOpacity>
+            <TouchableOpacity style={styles.loginBtn} onPress={() => navigation.navigate('Signup')}>
+                <Text style={styles.loginText}>SIGN UP</Text>
+            </TouchableOpacity>
+
+
+        
         </View>
     );
 };
