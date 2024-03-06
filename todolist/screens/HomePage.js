@@ -15,7 +15,7 @@ const HomePage = () => {
         <View style={styles.container}>
             <View style={styles.header}>
                 <Text style={styles.title}>
-                    <Image source={espasyoIcon} style={styles.espasyoIcon} /> Spazio
+                    <Image source={espasyoIcon} style={styles.espasyoIcon} /> Spaziooooooooo
                 </Text>
                 <TouchableOpacity onPress={() => navigation.navigate('Login')}>
                     <FontAwesome
