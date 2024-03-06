@@ -3,8 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'reac
 import { useNavigation } from '@react-navigation/native';
 
 
-import espasyoLogo from '../assets/Logo1.png'; 
-
+import espasyoLogo from 'C:/Users/Administrator/Desktop/TestProject/todolist/assets/Logo1.png';
 const LoginPage = () => {
    
     const [username, setUsername] = useState('');
