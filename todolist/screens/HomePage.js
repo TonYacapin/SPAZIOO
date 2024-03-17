@@ -5,7 +5,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import Icon2 from 'react-native-vector-icons/FontAwesome6';
 import { useNavigation } from '@react-navigation/native';
 
-import espasyoIcon from 'C:/Users/Administrator/Desktop/TestProject/todolist/assets/Logo1.png';
+import espasyoIcon from '../assets/Logo1.png';
 
 
 const HomePage = () => {
