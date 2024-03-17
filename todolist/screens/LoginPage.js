@@ -36,7 +36,7 @@ const LoginPage = () => {
                 <TextInput
                     style={styles.inputText}
                     placeholder="Email"
-                    placeholderTextColor="#FFA500"
+                    placeholderTextColor="#F0EAD2"
                     onChangeText={text => setEmail(text)}
                 />
             </View>
@@ -46,7 +46,7 @@ const LoginPage = () => {
                     secureTextEntry
                     style={styles.inputText}
                     placeholder="Password"
-                    placeholderTextColor="#FFA500"
+                    placeholderTextColor="#F0EAD2"
                     onChangeText={text => setPassword(text)}
                 />
             </View>
@@ -55,8 +55,8 @@ const LoginPage = () => {
                 <Text style={styles.loginText}>LOGIN</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.loginBtn} onPress={() => navigation.navigate('Signup')}>
-                <Text style={styles.loginText}>SIGN UP</Text>
+            <TouchableOpacity style={styles.signupBtn} onPress={() => navigation.navigate('Signup')}>
+                <Text style={styles.signupText}>SIGN UP</Text>
             </TouchableOpacity>
         </View>
     );
@@ -67,18 +67,18 @@ export default LoginPage;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#000',
+        backgroundColor: '#DDE5B6',
         alignItems: 'center',
         justifyContent: 'center',
     },
     logo: {
-        width: 100,
-        height: 100,
+        width: 170,
+        height: 98,
         marginBottom: 40,
     },
     inputView: {
         width: '80%',
-        backgroundColor: '#FFA500',
+        backgroundColor: '#ADC178',
         borderRadius: 25,
         height: 50,
         marginBottom: 20,
@@ -87,19 +87,32 @@ const styles = StyleSheet.create({
     },
     inputText: {
         height: 50,
-        color: '#000',
+        color: '#F0EAD2',
     },
     loginBtn: {
         width: '80%',
-        backgroundColor: '#FFA500',
+        backgroundColor: '#ADC178',
         borderRadius: 25,
         height: 50,
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: 40,
+        marginTop: 20,
         marginBottom: 10,
     },
     loginText: {
-        color: '#000',
+        color: '#F0EAD2',
+    },
+    signupBtn: {
+        width: '80%',
+        backgroundColor: '#ADC178',
+        borderRadius: 25,
+        height: 50,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 10,
+        marginBottom: 10,
+    },
+    signupText: {
+        color: '#F0EAD2',
     },
 });

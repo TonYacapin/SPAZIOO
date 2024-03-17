@@ -65,7 +65,7 @@ const SignUpScreen = () => {
         <TextInput
           style={styles.inputText}
           placeholder="Username"
-          placeholderTextColor="#003f5c"
+          placeholderTextColor="#ADC178"
           onChangeText={text => setUsername(text)}
           value={username}
         />
@@ -75,7 +75,7 @@ const SignUpScreen = () => {
         <TextInput
           style={styles.inputText}
           placeholder="Email"
-          placeholderTextColor="#003f5c"
+          placeholderTextColor="#ADC178"
           onChangeText={text => setEmail(text)}
           value={email}
         />
@@ -86,7 +86,7 @@ const SignUpScreen = () => {
           secureTextEntry
           style={styles.inputText}
           placeholder="Password"
-          placeholderTextColor="#003f5c"
+          placeholderTextColor="#ADC178"
           onChangeText={text => setPassword(text)}
           value={password}
         />
@@ -97,14 +97,14 @@ const SignUpScreen = () => {
           secureTextEntry
           style={styles.inputText}
           placeholder="Confirm Password"
-          placeholderTextColor="#003f5c"
+          placeholderTextColor="#ADC178"
           onChangeText={text => setConfirmPassword(text)}
           value={confirmPassword}
         />
       </View>
 
       <TouchableOpacity
-        style={[styles.signUpBtn, { backgroundColor: isSignUpDisabled() ? '#ccc' : '#fb5b5a' }]}
+        style={[styles.signUpBtn, { backgroundColor: isSignUpDisabled() ? '#ccc' : '#F0EAD2' }]}
         onPress={handleSignUp}
         disabled={isSignUpDisabled()}
       >
@@ -117,19 +117,19 @@ const SignUpScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#DDE5B6',
     alignItems: 'center',
     justifyContent: 'center',
   },
   logo: {
     fontWeight: 'bold',
     fontSize: 50,
-    color: '#003f5c',
+    color: '#ADC178',
     marginBottom: 40,
   },
   inputView: {
     width: '80%',
-    backgroundColor: '#465881',
+    backgroundColor: '#F0EAD2',
     borderRadius: 25,
     height: 50,
     marginBottom: 20,
@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
   },
   inputText: {
     height: 50,
-    color: 'white',
+    color: '#ADC178',
   },
   signUpBtn: {
     width: '80%',
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   signUpText: {
-    color: 'white',
+    color: '#ADC178',
   },
   error: {
     color: 'red',

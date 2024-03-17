@@ -7,7 +7,6 @@ import { useNavigation } from '@react-navigation/native';
 
 import espasyoIcon from '../assets/Logo1.png';
 
-
 const HomePage = () => {
     const navigation = useNavigation();
 
@@ -21,7 +20,7 @@ const HomePage = () => {
                     <FontAwesome
                         name="bars"
                         size={24}
-                        color="orange"
+                        color="#F0EAD2" // Changed the color to match the theme
                         style={styles.hamburgerIcon}
                     />
                 </TouchableOpacity>
@@ -31,13 +30,13 @@ const HomePage = () => {
             <View style={styles.content}>
                 <View style={styles.buttonsContainer}>
                     <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Space')}>
-                        <Icon2 name="landmark" size={30} color="black" />
+                        <Icon2 name="landmark" size={30} color="#F0EAD2" /> {/* Changed the color to match the theme */}
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.button} onPress={() => navigation.replace('Message') }>
-                        <Icon2 name="envelope" size={30} color="black" />
+                    <TouchableOpacity style={styles.button} onPress={() => navigation.replace('Message')}>
+                        <Icon2 name="envelope" size={30} color="#F0EAD2" /> {/* Changed the color to match the theme */}
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.button}>
-                        <Icon2 name="user" size={30} color="black" />
+                        <Icon2 name="user" size={30} color="#F0EAD2" /> {/* Changed the color to match the theme */}
                     </TouchableOpacity>
                 </View>
             </View>
@@ -50,7 +49,7 @@ const HomePage = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#221307',
+        backgroundColor: '#ADC178',
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -59,8 +58,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: 20,
-
-       
         width: '100%',
     },
     hamburgerIcon: {
@@ -71,7 +68,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         flexDirection: 'row',
         alignItems: 'center',
-        color: 'orange',
+        color: '#F0EAD2', // Changed the color to match the theme
     },
     content: {
         flex: 1,
@@ -80,27 +77,26 @@ const styles = StyleSheet.create({
     },
     welcomeText: {
         fontSize: 18,
-        color: 'orange',
+        color: '#F0EAD2', // Changed the color to match the theme
         marginBottom: 20,
         fontWeight: 'bold',
-      
     },
     buttonsContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         padding: 20,
         width: '100%',
-        marginTop: 20, // Adjust the margin based on your layout
+        marginTop: 20,
     },
     button: {
-        backgroundColor: 'orange',
+        backgroundColor: '#DDE5B6', // Changed the color to match the theme
         padding: 10,
         borderRadius: 5,
-        width: '30%', // Adjust the width based on your layout
+        width: '30%',
         alignItems: 'center',
     },
     espasyoIcon: {
-        width: 30,
+        width: 50,
         height: 30,
     },
 });
