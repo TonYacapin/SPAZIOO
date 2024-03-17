@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 
 const SignUpScreen = () => {
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -10,25 +11,27 @@ const SignUpScreen = () => {
 
   const handleSignUp = async () => {
     try {
-      const response = await fetch('http://localhost:5000/signup', {
+      const response = await fetch('http://localhost:4000/api/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          username: username,
           email: email,
           password: password,
         }),
       });
-      
+
       const data = await response.json();
       if (!response.ok) {
-        setError(data.error);
+        setError(data.message); // Fix this to show error message correctly
         setMessage(null);
       } else {
         setMessage(data.message);
         setError(null);
         // Reset form fields after successful signup
+        setUsername('');
         setEmail('');
         setPassword('');
         setConfirmPassword('');
@@ -46,6 +49,16 @@ const SignUpScreen = () => {
 
       {error && <Text style={styles.error}>{error}</Text>}
       {message && <Text style={styles.message}>{message}</Text>}
+
+      <View style={styles.inputView}>
+        <TextInput
+          style={styles.inputText}
+          placeholder="Username"
+          placeholderTextColor="#003f5c"
+          onChangeText={text => setUsername(text)}
+          value={username}
+        />
+      </View>
 
       <View style={styles.inputView}>
         <TextInput

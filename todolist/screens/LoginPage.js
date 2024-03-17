@@ -1,38 +1,43 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-
+import axios from 'axios'; // Import axios for making HTTP requests
 
 import espasyoLogo from '../assets/Logo1.png';
-const LoginPage = () => {
-   
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
 
-    const handleLogin = () => {
-        if (username === 'Admin' && password === 'Admin') {
-            // Username and password are correct, navigate to the homepage
+const LoginPage = () => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const navigation = useNavigation();
+
+    const handleLogin = async () => {
+        try {
+            const response = await axios.post('http://localhost:4000/api/login', {
+                email: email,
+                password: password,
+            });
+            
+            const { token } = response.data;
+            // Save token to local storage, secure storage, or context for future requests
+            
             console.log('Login successful!');
             navigation.replace('Home');
-        } else {
-            // Username or password is incorrect, show an error message or take appropriate action
-            console.log('Invalid username or password');
-            // You can show an error message to the user, clear the input fields, etc.
+        } catch (error) {
+            console.error('Login failed:', error.response.data.message);
+            // Show an error message to the user, clear input fields, etc.
         }
     };
-    const navigation = useNavigation();
 
     return (
         <View style={styles.container}>
-            {/* Replace "Spazio" text with the Espasyo logo */}
             <Image source={espasyoLogo} style={styles.logo} />
 
             <View style={styles.inputView}>
                 <TextInput
                     style={styles.inputText}
-                    placeholder="Username"
-                    placeholderTextColor="#FFA500" // Orange placeholder text color
-                    onChangeText={text => setUsername(text)}
+                    placeholder="Email"
+                    placeholderTextColor="#FFA500"
+                    onChangeText={text => setEmail(text)}
                 />
             </View>
 
@@ -41,7 +46,7 @@ const LoginPage = () => {
                     secureTextEntry
                     style={styles.inputText}
                     placeholder="Password"
-                    placeholderTextColor="#FFA500" // Orange placeholder text color
+                    placeholderTextColor="#FFA500"
                     onChangeText={text => setPassword(text)}
                 />
             </View>
@@ -49,12 +54,10 @@ const LoginPage = () => {
             <TouchableOpacity style={styles.loginBtn} onPress={handleLogin}>
                 <Text style={styles.loginText}>LOGIN</Text>
             </TouchableOpacity>
+
             <TouchableOpacity style={styles.loginBtn} onPress={() => navigation.navigate('Signup')}>
                 <Text style={styles.loginText}>SIGN UP</Text>
             </TouchableOpacity>
-
-
-        
         </View>
     );
 };
@@ -64,18 +67,18 @@ export default LoginPage;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#000', // Black background color
+        backgroundColor: '#000',
         alignItems: 'center',
         justifyContent: 'center',
     },
     logo: {
-        width: 100, // Adjust width and height based on your logo dimensions
+        width: 100,
         height: 100,
         marginBottom: 40,
     },
     inputView: {
         width: '80%',
-        backgroundColor: '#FFA500', // Orange input field background color
+        backgroundColor: '#FFA500',
         borderRadius: 25,
         height: 50,
         marginBottom: 20,
@@ -84,11 +87,11 @@ const styles = StyleSheet.create({
     },
     inputText: {
         height: 50,
-        color: '#000', // Black text color
+        color: '#000',
     },
     loginBtn: {
         width: '80%',
-        backgroundColor: '#FFA500', // Orange login button background color
+        backgroundColor: '#FFA500',
         borderRadius: 25,
         height: 50,
         alignItems: 'center',
@@ -97,6 +100,6 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     loginText: {
-        color: '#000', // Black login button text color
+        color: '#000',
     },
 });
