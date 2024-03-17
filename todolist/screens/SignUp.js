@@ -11,6 +11,12 @@ const SignUpScreen = () => {
 
   const handleSignUp = async () => {
     try {
+      // Check if passwords match
+      if (password !== confirmPassword) {
+        setError('Passwords do not match');
+        return;
+      }
+
       const response = await fetch('http://localhost:4000/api/signup', {
         method: 'POST',
         headers: {
@@ -25,7 +31,7 @@ const SignUpScreen = () => {
 
       const data = await response.json();
       if (!response.ok) {
-        setError(data.message); // Fix this to show error message correctly
+        setError(data.message);
         setMessage(null);
       } else {
         setMessage(data.message);
@@ -41,6 +47,11 @@ const SignUpScreen = () => {
       setError('Internal server error');
       setMessage(null);
     }
+  };
+
+  // Function to enable/disable SignUp button based on password match
+  const isSignUpDisabled = () => {
+    return password === '' || confirmPassword === '' || password !== confirmPassword;
   };
 
   return (
@@ -92,7 +103,11 @@ const SignUpScreen = () => {
         />
       </View>
 
-      <TouchableOpacity style={styles.signUpBtn} onPress={handleSignUp}>
+      <TouchableOpacity
+        style={[styles.signUpBtn, { backgroundColor: isSignUpDisabled() ? '#ccc' : '#fb5b5a' }]}
+        onPress={handleSignUp}
+        disabled={isSignUpDisabled()}
+      >
         <Text style={styles.signUpText}>SIGN UP</Text>
       </TouchableOpacity>
     </View>
@@ -127,7 +142,6 @@ const styles = StyleSheet.create({
   },
   signUpBtn: {
     width: '80%',
-    backgroundColor: '#fb5b5a',
     borderRadius: 25,
     height: 50,
     alignItems: 'center',
