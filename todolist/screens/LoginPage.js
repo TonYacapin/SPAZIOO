@@ -9,6 +9,8 @@ const LoginPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const navigation = useNavigation();
+    const [error, setError] = useState(null);
+    const [message, setMessage] = useState(null);
 
     const handleLogin = async () => {
         try {
@@ -24,6 +26,7 @@ const LoginPage = () => {
             navigation.replace('Home');
         } catch (error) {
             console.error('Login failed:', error.response.data.message);
+            setError(data.message);
             // Show an error message to the user, clear input fields, etc.
         }
     };
@@ -31,6 +34,9 @@ const LoginPage = () => {
     return (
         <View style={styles.container}>
             <Image source={espasyoLogo} style={styles.logo} />
+
+            {error && <Text style={styles.error}>{error}</Text>}
+      {message && <Text style={styles.message}>{message}</Text>}
 
             <View style={styles.inputView}>
                 <TextInput
@@ -115,4 +121,12 @@ const styles = StyleSheet.create({
     signupText: {
         color: '#F0EAD2',
     },
+    error: {
+        color: 'red',
+        marginBottom: 10,
+      },
+      message: {
+        color: 'green',
+        marginBottom: 10,
+      },
 });
