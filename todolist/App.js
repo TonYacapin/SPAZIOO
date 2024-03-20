@@ -14,6 +14,7 @@ import MessageScreen from './screens/MessagePage';
 import UserScreen from './screens/UserScreen';
 import LoginPage from './screens/LoginPage';
 import SignUp from './screens/SignUp';
+import LandPostScreen from './screens/LandPostScreen';
 
 
 
@@ -29,6 +30,7 @@ const App = () => {
         <Stack.Screen name="Message" component={MessageScreen} options={{headerShown: false}}/>
         <Stack.Screen name="User" component={UserScreen} options={{headerShown: false}}/>
         <Stack.Screen name="Signup" component={SignUp} options={{headerShown: false}}/>
+        <Stack.Screen name="LandPostScreen" component={LandPostScreen} options={{headerShown: false}}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -14,7 +14,7 @@ const LoginPage = () => {
 
     const handleLogin = async () => {
         try {
-            const response = await axios.post('http://localhost:4000/api/login', {
+            const response = await axios.post('http://192.168.0.109:4000/api/login', {
                 email: email,
                 password: password,
             });
@@ -26,7 +26,7 @@ const LoginPage = () => {
             navigation.replace('Home');
         } catch (error) {
             console.error('Login failed:', error.response.data.message);
-            setError(data.message);
+            setError(error.response.data.message); // Fixed: Set error message correctly
             // Show an error message to the user, clear input fields, etc.
         }
     };
@@ -36,7 +36,7 @@ const LoginPage = () => {
             <Image source={espasyoLogo} style={styles.logo} />
 
             {error && <Text style={styles.error}>{error}</Text>}
-      {message && <Text style={styles.message}>{message}</Text>}
+            {message && <Text style={styles.message}>{message}</Text>}
 
             <View style={styles.inputView}>
                 <TextInput
@@ -124,9 +124,9 @@ const styles = StyleSheet.create({
     error: {
         color: 'red',
         marginBottom: 10,
-      },
-      message: {
+    },
+    message: {
         color: 'green',
         marginBottom: 10,
-      },
+    },
 });

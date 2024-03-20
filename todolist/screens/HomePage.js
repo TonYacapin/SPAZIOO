@@ -8,14 +8,16 @@ import { useNavigation } from '@react-navigation/native';
 import espasyoIcon from '../assets/Logo1.png';
 
 const HomePage = () => {
+    console.log("Rendering HomePage component");
     const navigation = useNavigation();
 
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <Text style={styles.title}>
-                    <Image source={espasyoIcon} style={styles.espasyoIcon} /> Spazio
-                </Text>
+                <View style={styles.title}>
+                    <Image source={espasyoIcon} style={styles.espasyoIcon} />
+                    <Text style={styles.titleText}>Spazio</Text>
+                </View>
                 <TouchableOpacity onPress={() => navigation.navigate('Login')}>
                     <FontAwesome
                         name="bars"
@@ -27,19 +29,25 @@ const HomePage = () => {
             </View>
             <Text style={styles.welcomeText}>Welcome to Spazio</Text>
 
-            <View style={styles.content}>
-                <View style={styles.buttonsContainer}>
-                    <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Space')}>
-                        <Icon2 name="landmark" size={30} color="#F0EAD2" /> {/* Changed the color to match the theme */}
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.button} onPress={() => navigation.replace('Message')}>
-                        <Icon2 name="envelope" size={30} color="#F0EAD2" /> {/* Changed the color to match the theme */}
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.button}>
-                        <Icon2 name="user" size={30} color="#F0EAD2" /> {/* Changed the color to match the theme */}
-                    </TouchableOpacity>
-                </View>
-            </View>
+            <View style={styles.buttonsContainer}>
+    <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Space')}>
+        <Icon2 name="landmark" size={30} color="#F0EAD2" />
+        <Text style={styles.buttonText}>Space</Text>
+    </TouchableOpacity>
+    <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('LandPostScreen')}>
+        <Icon2 name="landmark" size={30} color="#F0EAD2" />
+        <Text style={styles.buttonText}>Land Post</Text>
+    </TouchableOpacity>
+    <TouchableOpacity style={styles.button} onPress={() => navigation.replace('Message')}>
+        <Icon2 name="envelope" size={30} color="#F0EAD2" />
+        <Text style={styles.buttonText}>Message</Text>
+    </TouchableOpacity>
+    <TouchableOpacity style={styles.button}>
+        <Icon2 name="user" size={30} color="#F0EAD2" />
+        <Text style={styles.buttonText}>User</Text>
+    </TouchableOpacity>
+</View>
+
 
             <StatusBar style="auto" />
         </View>
@@ -47,6 +55,11 @@ const HomePage = () => {
 };
 
 const styles = StyleSheet.create({
+
+    buttonText: {
+        color: '#F0EAD2',
+        marginTop: 5, // Adjust as needed
+    },
     container: {
         flex: 1,
         backgroundColor: '#ADC178',
@@ -64,10 +77,12 @@ const styles = StyleSheet.create({
         marginRight: 10,
     },
     title: {
-        fontSize: 20,
-        fontWeight: 'bold',
         flexDirection: 'row',
         alignItems: 'center',
+    },
+    titleText: {
+        fontSize: 20,
+        fontWeight: 'bold',
         color: '#F0EAD2', // Changed the color to match the theme
     },
     content: {
@@ -82,6 +97,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     buttonsContainer: {
+        flex: 1,
         flexDirection: 'row',
         justifyContent: 'space-between',
         padding: 20,
