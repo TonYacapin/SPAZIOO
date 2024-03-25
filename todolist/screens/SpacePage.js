@@ -16,7 +16,7 @@ export const SpacePage = () => {
 
   const fetchLands = async () => {
     try {
-      const response = await fetch('http://192.168.0.109:4000/api/lands'); // Update with your backend URL
+      const response = await fetch('http://192.168.0.106:4000/api/lands'); // Update with your backend URL
       const data = await response.json();
       setLands(data);
       setLoading(false);

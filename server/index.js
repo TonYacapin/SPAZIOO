@@ -20,8 +20,8 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
 
-app.use(bodyParser.json({ limit: '50mb' }));
-app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
+app.use(bodyParser.json({ limit: '5mb' }));
+app.use(bodyParser.urlencoded({ extended: true, limit: '5mb' }));
 
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
@@ -38,11 +38,14 @@ const storage = multer.memoryStorage();
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 50 * 1024 * 1024, // 50 MB, adjust as needed
+    fileSize: 100, // 50 MB, adjust as needed
   },
 });
 // Update this line to use your IP address
-const ipAddress = '192.168.0.109';
+//const ipAddress = '192.168.0.109';
+const ipAddress = '192.168.0.106';
+
+
 const port = process.env.PORT || 4000;
 
 app.get("/", (req, res) => {
@@ -119,34 +122,37 @@ app.post("/api/login", async (req, res) => {
         res.status(500).json({ message: 'Server Error' });
     }
 });
-app.post('/upload', upload.single('image'), async (req, res) => {
-    console.log(req.body);
-
+app.post('/upload', async (req, res) => {
+     console.log('Request Body:', req.body);
     try {
       const { landName, landSize, location, price, base64Image } = req.body;
-      
+  
       if (!base64Image) {
         return res.status(400).json({ message: 'No base64 image provided' });
       }
-      
+  
+      const imageUrl = `data:image/jpeg;base64,${base64Image}`;
+  
       // Create a new Land object
       const newLand = new Land({
         landName,
         landSize,
         location,
         price,
-        imageUrl: base64Image,
+        imageUrl, // Save the imageUrl as data URI
       });
-    
+  
       // Save the new Land object to the database
       const savedLand = await newLand.save();
-    
+  
       res.status(201).json(savedLand);
     } catch (error) {
       console.error("Error posting land:", error);
       res.status(500).json({ error: 'Internal server error' });
     }
   });
+  
+  
   
   app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
@@ -196,3 +202,4 @@ app.get('/api/lands', async (req, res) => {
 app.listen(port, ipAddress, () => {
     console.log(`Server running on ${ipAddress}:${port}`);
 });
+  

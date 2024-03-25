@@ -25,36 +25,36 @@ const LandPostScreen = () => {
       }
     })();
   }, []);
+const handleSignUp = async () => {
+  // Create form data
+  const formData = new FormData();
+  formData.append('landName', landName);
+  formData.append('landSize', landSize);
+  formData.append('location', location);
+  formData.append('price', price);
 
-  const handleSignUp = async () => {
-    // Create form data
-    const formData = new FormData();
-    formData.append('landName', landName);
-    formData.append('landSize', landSize);
-    formData.append('location', location);
-    formData.append('price', price);
-  
-    // Check if imageUri and imageName are not null
-    if (imageUri && imageName) {
-      // Convert image to base64
-      const base64 = await convertImageToBase64(imageUri);
-      
-      // Set the base64 image in formData
-      formData.append('base64Image', base64);
-    }
-  
-    try {
-      const response = await axios.post('http://192.168.0.109:4000/upload', formData, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-  
-      console.log('Response:', response.data);
-    } catch (error) {
-      console.error('Error posting land:', error);
-    }
-  };
+  // Check if imageUri and imageName are not null
+  if (imageUri && imageName) {
+    // Convert image to base64
+    const base64 = await convertImageToBase64(imageUri);
+
+    // Set the base64 image in formData
+    formData.append('base64Image', base64);
+  }
+
+  try {
+    const response = await axios.post('http://192.168.0.106:4000/upload', formData, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    console.log('Response:', response.data);
+  } catch (error) {
+    console.error('Error posting land:', error);
+  }
+};
+
   
   const convertImageToBase64 = async (uri) => {
     try {
@@ -64,7 +64,8 @@ const LandPostScreen = () => {
   
       return new Promise((resolve, reject) => {
         reader.onload = () => {
-          resolve(reader.result.split(',')[1]);
+          const base64String = reader.result.split(',')[1];
+          resolve(base64String);
         };
         reader.onerror = () => {
           reject('Error occurred while reading the image.');
@@ -75,6 +76,8 @@ const LandPostScreen = () => {
       console.error('Error converting image to base64:', error);
     }
   };
+  
+  
 
   const pickImage = async () => {
     try {
@@ -83,6 +86,7 @@ const LandPostScreen = () => {
         allowsEditing: true,
         aspect: [4, 3],
         quality: 1,
+       
       });
   
       console.log('Image Picker Result:', result);

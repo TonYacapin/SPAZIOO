@@ -14,7 +14,7 @@ const LoginPage = () => {
 
     const handleLogin = async () => {
         try {
-            const response = await axios.post('http://192.168.0.109:4000/api/login', {
+            const response = await axios.post('http://192.168.0.106:4000/api/login', {
                 email: email,
                 password: password,
             });
