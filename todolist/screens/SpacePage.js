@@ -1,5 +1,3 @@
-// SpacePage.js
-
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, FlatList, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -16,7 +14,7 @@ export const SpacePage = () => {
 
   const fetchLands = async () => {
     try {
-      const response = await fetch('http://192.168.0.106:4000/api/lands'); // Update with your backend URL
+      const response = await fetch('http://192.168.0.102:4000/api/lands'); // Update with your backend URL
       const data = await response.json();
       setLands(data);
       setLoading(false);
@@ -26,7 +24,7 @@ export const SpacePage = () => {
   };
 
   const renderLandItem = ({ item }) => (
-    <TouchableOpacity style={styles.card}>
+    <TouchableOpacity style={styles.card} onPress={() => viewLandDetails(item)}>
       <Image source={{ uri: item.imageUrl }} style={styles.cardImage} />
       <View style={styles.cardDetails}>
         <Text style={styles.cardTitle}>{item.landName}</Text>
@@ -36,6 +34,11 @@ export const SpacePage = () => {
       </View>
     </TouchableOpacity>
   );
+
+  const viewLandDetails = (land) => {
+    // Navigate to LandDetails screen with the land object
+    navigation.navigate('LandDetails', { land });
+  };
 
   if (loading) {
     return (
@@ -51,60 +54,70 @@ export const SpacePage = () => {
         data={lands}
         renderItem={renderLandItem}
         keyExtractor={item => item._id}
+        contentContainerStyle={styles.flatListContent}
       />
-
-      
-<TouchableOpacity style={styles.signUpBtn} onPress={() => navigation.replace('Home')}>
-        <Text style={styles.signUpText}>BACK</Text>
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <Text style={styles.backButtonText}>Back</Text>
       </TouchableOpacity>
     </View>
-    
   );
 };
 
 const styles = StyleSheet.create({
-
-  signUpBtn: {
-    width: '80%',
-    backgroundColor: '#333',
-    borderRadius: 10,
-    height: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   container: {
     flex: 1,
-    backgroundColor: '#221307',
+    backgroundColor: '#F5F5F5',
     padding: 16,
+  },
+  flatListContent: {
+    paddingVertical: 8,
   },
   card: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    marginBottom: 16,
-    overflow: 'hidden',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    marginBottom: 12,
+    padding: 12,
+    shadowColor: '#000000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
   },
   cardImage: {
     width: 120,
     height: 120,
+    borderRadius: 8,
+    marginRight: 12,
   },
   cardDetails: {
     flex: 1,
-    padding: 12,
   },
   cardTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 8,
+    marginBottom: 4,
   },
   cardText: {
     fontSize: 16,
-    marginBottom: 4,
+    color: '#333333',
+    marginBottom: 2,
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
+  backButton: {
+    backgroundColor: '#333333',
+    borderRadius: 12,
+    padding: 16,
     alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 16,
+  },
+  backButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

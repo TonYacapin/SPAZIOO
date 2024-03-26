@@ -15,6 +15,8 @@ import UserScreen from './screens/UserScreen';
 import LoginPage from './screens/LoginPage';
 import SignUp from './screens/SignUp';
 import LandPostScreen from './screens/LandPostScreen';
+import LandDetails from './screens/LandDetails';
+
 
 
 
@@ -31,6 +33,8 @@ const App = () => {
         <Stack.Screen name="User" component={UserScreen} options={{headerShown: false}}/>
         <Stack.Screen name="Signup" component={SignUp} options={{headerShown: false}}/>
         <Stack.Screen name="LandPostScreen" component={LandPostScreen} options={{headerShown: false}}/>
+        <Stack.Screen name="LandDetails" component={LandDetails} options={{headerShown: false}}/>
+
       </Stack.Navigator>
     </NavigationContainer>
   );

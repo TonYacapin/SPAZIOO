@@ -43,7 +43,7 @@ const upload = multer({
 });
 // Update this line to use your IP address
 //const ipAddress = '192.168.0.109';
-const ipAddress = '192.168.0.106';
+const ipAddress = '192.168.0.102';
 
 
 const port = process.env.PORT || 4000;
@@ -125,7 +125,7 @@ app.post("/api/login", async (req, res) => {
 app.post('/upload', async (req, res) => {
      console.log('Request Body:', req.body);
     try {
-      const { landName, landSize, location, price, base64Image } = req.body;
+      const { landName, landSize, location, price, base64Image, option, isAvailable, description } = req.body;
   
       if (!base64Image) {
         return res.status(400).json({ message: 'No base64 image provided' });
@@ -140,6 +140,9 @@ app.post('/upload', async (req, res) => {
         location,
         price,
         imageUrl, // Save the imageUrl as data URI
+        option,
+        isAvailable,
+        description,
       });
   
       // Save the new Land object to the database

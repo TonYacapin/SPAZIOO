@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Platform, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
-import axios from 'axios'; // Import axios
+import axios from 'axios';
 
 const LandPostScreen = () => {
   const [landName, setLandName] = useState('');
@@ -12,6 +12,11 @@ const LandPostScreen = () => {
   const [imageUri, setImageUri] = useState(null);
   const [imageName, setImageName] = useState('');
   const [base64Image, setBase64Image] = useState('');
+  const [error, setError] = useState(null);
+  const [message, setMessage] = useState(null);
+  const [option, setOption] = useState('Buy');
+  const [isAvailable, setIsAvailable] = useState(true);
+  const [description, setDescription] = useState('');
 
   const navigation = useNavigation();
 
@@ -25,43 +30,65 @@ const LandPostScreen = () => {
       }
     })();
   }, []);
-const handleSignUp = async () => {
-  // Create form data
-  const formData = new FormData();
-  formData.append('landName', landName);
-  formData.append('landSize', landSize);
-  formData.append('location', location);
-  formData.append('price', price);
 
-  // Check if imageUri and imageName are not null
-  if (imageUri && imageName) {
-    // Convert image to base64
-    const base64 = await convertImageToBase64(imageUri);
+  const handleSignUp = async () => {
+    // Create form data
+    const formData = new FormData();
+    formData.append('landName', landName);
+    formData.append('landSize', landSize);
+    formData.append('location', location);
+    formData.append('price', price);
+ 
 
-    // Set the base64 image in formData
-    formData.append('base64Image', base64);
-  }
+    // Check if imageUri and imageName are not null
+    if (imageUri && imageName) {
+      // Convert image to base64
+      const base64 = await convertImageToBase64(imageUri);
 
-  try {
-    const response = await axios.post('http://192.168.0.106:4000/upload', formData, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+      // Set the base64 image in formData
+      formData.append('base64Image', base64);
+    }
+    formData.append('option', option);
+    formData.append('isAvailable', isAvailable);
+    formData.append('description', description);
 
-    console.log('Response:', response.data);
-  } catch (error) {
-    console.error('Error posting land:', error);
-  }
-};
+    try {
+      const response = await axios.post('http://192.168.0.102:4000/upload', formData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-  
+      console.log('Response:', response.data);
+    
+
+      if (response.status >= 200 && response.status < 300) {
+        // Reset form fields after successful post
+        setMessage('Land posted successfully!');
+        setError(null);
+        setLandName('');
+        setLandSize('');
+        setLocation('');
+        setPrice('');
+        setImageUri(null);
+        setImageName('');
+        setOption('Buy');
+        setIsAvailable(true);
+        setDescription('');
+      }
+    } catch (error) {
+      console.error('Error posting land:', error);
+      setError('Error posting land. Please try again.');
+      setMessage(null);
+    }
+  };
+
   const convertImageToBase64 = async (uri) => {
     try {
       const response = await fetch(uri);
       const blob = await response.blob();
       const reader = new FileReader();
-  
+
       return new Promise((resolve, reject) => {
         reader.onload = () => {
           const base64String = reader.result.split(',')[1];
@@ -76,24 +103,21 @@ const handleSignUp = async () => {
       console.error('Error converting image to base64:', error);
     }
   };
-  
-  
 
   const pickImage = async () => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
-        aspect: [4, 3],
+        aspect: [2, 2],
         quality: 1,
-       
       });
-  
+
       console.log('Image Picker Result:', result);
-  
+
       if (!result.cancelled && result.assets.length > 0 && result.assets[0].uri) {
         setImageUri(result.assets[0].uri);
-        setImageName(result.assets[0].uri.split('/').pop()); // Set the image name
+        setImageName(result.assets[0].uri.split('/').pop());
       } else {
         console.log('Image selection cancelled');
       }
@@ -101,50 +125,86 @@ const handleSignUp = async () => {
       console.error('Error picking image:', error);
     }
   };
-  
+
   useEffect(() => {
     console.log('Image URI:', imageUri);
   }, [imageUri]);
 
-  console.log('Image URI:', imageUri); // Check the imageUri in console
-
   return (
     <View style={styles.container}>
-      <Text style={styles.logo}>Post Land</Text>
+    <Text style={styles.logo}>Post Land</Text>
 
-      <View style={styles.inputView}>
-        <TextInput
-          style={styles.inputText}
-          placeholder="Land Name"
-          onChangeText={(text) => setLandName(text)}
-          value={landName}
-        />
+    {error && <Text style={styles.error}>{error}</Text>}
+    {message && <Text style={styles.message}>{message}</Text>}
+
+    <View style={styles.inputView}>
+      <TextInput
+        style={styles.inputText}
+        placeholder="Land Name"
+        onChangeText={(text) => setLandName(text)}
+        value={landName}
+      />
+    </View>
+
+    <View style={styles.inputView}>
+      <TextInput
+        style={styles.inputText}
+        placeholder="Land Size"
+        onChangeText={(text) => setLandSize(text)}
+        value={landSize}
+      />
+    </View>
+
+    <View style={styles.inputView}>
+      <TextInput
+        style={styles.inputText}
+        placeholder="Location"
+        onChangeText={(text) => setLocation(text)}
+        value={location}
+      />
+    </View>
+
+    <View style={styles.inputView}>
+      <TextInput
+        style={styles.inputText}
+        placeholder="Price"
+        onChangeText={(text) => setPrice(text)}
+        value={price}
+      />
+    </View>
+
+    <View style={styles.radioContainer}>
+      <Text>Option:</Text>
+      <View style={styles.radioGroup}>
+        <TouchableOpacity
+          style={[styles.radioButton, option === 'Rent' && styles.radioButtonSelected]}
+          onPress={() => setOption('Rent')}
+        >
+          <Text style={styles.radioButtonText}>Rent</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.radioButton, option === 'Lease' && styles.radioButtonSelected]}
+          onPress={() => setOption('Lease')}
+          >
+            <Text style={styles.radioButtonText}>Lease</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.radioButton, option === 'Buy' && styles.radioButtonSelected]}
+            onPress={() => setOption('Buy')}
+          >
+            <Text style={styles.radioButtonText}>Buy</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <View style={styles.inputView}>
         <TextInput
           style={styles.inputText}
-          placeholder="Land Size"
-          onChangeText={(text) => setLandSize(text)}
-          value={landSize}
-        />
-      </View>
-
-      <View style={styles.inputView}>
-        <TextInput
-          style={styles.inputText}
-          placeholder="Location"
-          onChangeText={(text) => setLocation(text)}
-          value={location}
-        />
-      </View>
-
-      <View style={styles.inputView}>
-        <TextInput
-          style={styles.inputText}
-          placeholder="Price"
-          onChangeText={(text) => setPrice(text)}
-          value={price}
+          placeholder="Land Description"
+          onChangeText={(text) => setDescription(text)}
+          value={description}
+          multiline={true}
+          numberOfLines={4}
         />
       </View>
 
@@ -222,6 +282,37 @@ const styles = StyleSheet.create({
   },
   signUpText: {
     color: '#fff',
+  },
+  error: {
+    color: 'red',
+    marginBottom: 10,
+  },
+  message: {
+    color: 'green',
+    marginBottom: 10,
+  },
+  radioContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  radioGroup: {
+    flexDirection: 'row',
+    marginLeft: 10,
+  },
+  radioButton: {
+    marginRight: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 5,
+    borderRadius: 5,
+  },
+  radioButtonSelected: {
+    backgroundColor: '#333',
+    borderColor: '#333',
+  },
+  radioButtonText: {
+    color: '#333',
   },
 });
 
