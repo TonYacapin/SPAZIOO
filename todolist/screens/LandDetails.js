@@ -5,9 +5,16 @@ import { Button, Card, Title, Paragraph, IconButton } from 'react-native-paper';
 const LandDetails = ({ route, navigation }) => {
   const { land } = route.params;
 
-  // Function to handle back button press
   const handleBackButton = () => {
     navigation.goBack();
+  };
+
+  const handleContactSeller = () => {
+    console.log('Contact Seller');
+  };
+
+  const handleGoogleMaps = () => {
+    console.log('Look at Google Maps');
   };
 
   return (
@@ -35,6 +42,26 @@ const LandDetails = ({ route, navigation }) => {
           >
             Back
           </Button>
+          <View style={styles.buttonContainer}>
+            <Button
+              icon="email"
+              mode="contained"
+              onPress={handleContactSeller}
+              style={styles.button}
+              labelStyle={styles.buttonText}
+            >
+              Contact Seller
+            </Button>
+            <Button
+              icon="map"
+              mode="contained"
+              onPress={handleGoogleMaps}
+              style={styles.button}
+              labelStyle={styles.buttonText}
+            >
+              Google Maps
+            </Button>
+          </View>
           <IconButton
             icon="heart-outline"
             color="#F44336"
@@ -56,11 +83,15 @@ const styles = StyleSheet.create({
   },
   card: {
     marginBottom: 20,
+    justifyContent: 'space-between',
+    borderRadius: 12,
+    overflow: 'hidden',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 10,
+    textAlign: 'center',
   },
   infoContainer: {
     marginBottom: 15,
@@ -74,22 +105,41 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   cardActions: {
-    justifyContent: 'space-between',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
     marginTop: 10,
   },
   backButton: {
     borderRadius: 8,
+    marginBottom: 10,
   },
   backButtonText: {
+    fontSize: 16,
+  },
+  buttonContainer: {
+    flexDirection: 'column', // Changed to vertical
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+    marginTop: 10,
+  },
+  button: {
+    borderRadius: 8,
+    width: '70%', // Adjusted width for better visibility
+    marginBottom: 10,
+  },
+  buttonText: {
     fontSize: 16,
   },
   favoriteButton: {
     backgroundColor: '#ffffff',
     elevation: 0,
+    alignSelf: 'flex-end',
   },
   image: {
-    width: 250,
-    height: 250,
+    width: '100%',
+    height: 200,
   },
 });
 
