@@ -202,6 +202,8 @@ app.get('/api/lands', async (req, res) => {
     }
 });
 
+
+
 app.listen(port, ipAddress, () => {
     console.log(`Server running on ${ipAddress}:${port}`);
 });
