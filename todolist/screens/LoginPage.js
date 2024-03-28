@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios'; // Import axios for making HTTP requests
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import espasyoLogo from '../assets/Logo1.png';
 
@@ -14,22 +15,34 @@ const LoginPage = () => {
 
     const handleLogin = async () => {
         try {
-            const response = await axios.post('http://192.168.0.102:4000/api/login', {
-                email: email,
-                password: password,
-            });
-            
-            const { token } = response.data;
-            // Save token to local storage, secure storage, or context for future requests
-            
-            console.log('Login successful!');
-            navigation.replace('Home');
+          const response = await axios.post('http://192.168.0.109:4000/api/login', {
+            email: email,
+            password: password,
+          });
+      
+          const { token } = response.data;
+          await AsyncStorage.setItem('token', token); // Save token to async storage
+      
+          console.log('Login successful!');
+          navigation.replace('Home');
         } catch (error) {
+          if (error.response) {
+            // If the error has a response object, it means the request was made and the server responded with a status code
             console.error('Login failed:', error.response.data.message);
-            setError(error.response.data.message); // Fixed: Set error message correctly
-            // Show an error message to the user, clear input fields, etc.
+            setError(error.response.data.message);
+          } else if (error.request) {
+            // If the error has a request object, it means the request was made but no response was received
+            console.error('No response received:', error.request);
+            setError('No response received. Please check your network connection.');
+          } else {
+            // Otherwise, something happened in setting up the request that triggered the error
+            console.error('Error:', error.message);
+            setError('An error occurred. Please try again later.');
+          }
         }
-    };
+      };
+      
+      
 
     return (
         <View style={styles.container}>

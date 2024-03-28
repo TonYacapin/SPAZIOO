@@ -1,9 +1,25 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Button, Card, Title, Paragraph, IconButton } from 'react-native-paper';
+import axios from 'axios';
 
 const LandDetails = ({ route, navigation }) => {
   const { land } = route.params;
+  const [sellerInfo, setSellerInfo] = useState(null);
+
+  useEffect(() => {
+    // Function to fetch seller information
+    const fetchSellerInfo = async () => {
+      try {
+        const response = await axios.get(`http://192.168.0.109:4000/api/user/${land.seller}`);
+        setSellerInfo(response.data);
+      } catch (error) {
+        console.error('Error fetching seller information:', error);
+      }
+    };
+
+    fetchSellerInfo();
+  }, [land.seller]);
 
   const handleBackButton = () => {
     navigation.goBack();
@@ -11,6 +27,7 @@ const LandDetails = ({ route, navigation }) => {
 
   const handleContactSeller = () => {
     console.log('Contact Seller');
+    navigation.navigate('ChatPage');
   };
 
   const handleGoogleMaps = () => {
@@ -29,6 +46,12 @@ const LandDetails = ({ route, navigation }) => {
             <Paragraph style={styles.info}>Price: {land.price}</Paragraph>
             <Paragraph style={styles.info}>Option: {land.option}</Paragraph>
             <Paragraph style={styles.info}>Available: {land.isAvailable ? 'Yes' : 'No'}</Paragraph>
+            {sellerInfo && (
+              <View>
+                <Paragraph style={styles.info}>Seller Username: {sellerInfo.username}</Paragraph>
+                <Paragraph style={styles.info}>Seller Email: {sellerInfo.email}</Paragraph>
+              </View>
+            )}
           </View>
           <Paragraph style={styles.description}>{land.description}</Paragraph>
         </Card.Content>

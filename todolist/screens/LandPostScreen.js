@@ -2,7 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Platform, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import jwt_decode from 'jwt-decode';
+
 
 const LandPostScreen = () => {
   const [landName, setLandName] = useState('');
@@ -31,37 +34,57 @@ const LandPostScreen = () => {
     })();
   }, []);
 
+
   const handleSignUp = async () => {
-    // Create form data
-    const formData = new FormData();
-    formData.append('landName', landName);
-    formData.append('landSize', landSize);
-    formData.append('location', location);
-    formData.append('price', price);
- 
-
-    // Check if imageUri and imageName are not null
-    if (imageUri && imageName) {
-      // Convert image to base64
-      const base64 = await convertImageToBase64(imageUri);
-
-      // Set the base64 image in formData
-      formData.append('base64Image', base64);
-    }
-    formData.append('option', option);
-    formData.append('isAvailable', isAvailable);
-    formData.append('description', description);
-
     try {
-      const response = await axios.post('http://192.168.0.102:4000/upload', formData, {
+      // Retrieve the JWT token from AsyncStorage
+      const token = await AsyncStorage.getItem('token');
+      
+      if (!token) {
+        console.error('No token found. Please log in.');
+        return;
+      }
+  
+      // Decode the token to get user ID
+      const tokenParts = token.split('.');
+      const payload = JSON.parse(atob(tokenParts[1]));
+      const { id: userId, username, email } = payload.user; // Destructure user data from payload
+  
+      // Create form data
+      const formData = new FormData();
+      formData.append('landName', landName);
+      formData.append('landSize', landSize);
+      formData.append('location', location);
+      formData.append('price', price);
+  
+      // Check if imageUri and imageName are not null
+      if (imageUri && imageName) {
+        // Convert image to base64
+        const base64 = await convertImageToBase64(imageUri);
+  
+        // Set the base64 image in formData
+        formData.append('base64Image', base64);
+      }
+  
+      formData.append('option', option);
+      formData.append('isAvailable', isAvailable);
+      formData.append('description', description);
+      
+      // Add seller ID, username, and email to form data
+      formData.append('seller', userId);
+      formData.append('username', username);
+      formData.append('email', email);
+  
+      // Make POST request to upload endpoint
+      const response = await axios.post('http://192.168.0.109:4000/upload', formData, {
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`, // Include Authorization header with JWT token
         },
       });
-
+  
       console.log('Response:', response.data);
-    
-
+  
       if (response.status >= 200 && response.status < 300) {
         // Reset form fields after successful post
         setMessage('Land posted successfully!');
@@ -82,7 +105,7 @@ const LandPostScreen = () => {
       setMessage(null);
     }
   };
-
+  
   const convertImageToBase64 = async (uri) => {
     try {
       const response = await fetch(uri);
