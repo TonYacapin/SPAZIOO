@@ -8,7 +8,12 @@ const landSchema = new mongoose.Schema({
   imageUrl: { type: String, required: true },
   option: { type: String, enum: ['Rent', 'Lease', 'Buy'], required: true },
   isAvailable: { type: Boolean, default: true },
-  description: { type: String, required: true }, // New field: Land Description
+  description: { type: String, required: true },
+  seller: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  }
 });
 
 const Land = mongoose.model('Land', landSchema);

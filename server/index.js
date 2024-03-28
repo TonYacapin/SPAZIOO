@@ -2,7 +2,6 @@ require('dotenv').config(); // Load environment variables from .env file
 const express = require('express');
 const mongoose = require('mongoose');
 const app = express();
-const cors = require("cors");
 const bodyParser = require("body-parser");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -10,14 +9,63 @@ const User = require('./models/User');
 const Land = require('./models/Land');
 const multer = require('multer');
 
+const cors = require("cors");
+const http = require("http");
+const { Server } = require("socket.io");
 
 
-const corsOptions = {
-    origin: '*', // Change this to allow requests from specific origins
-    methods: 'GET,PUT,POST,DELETE',
-    optionsSuccessStatus: 200,
-};
-app.use(cors(corsOptions));
+const messageRoutes = require('./routes/messageRoutes');
+const chatRoutes = require('./routes/chatRoutes')
+
+app.use(cors());
+
+const server = http.createServer(app);
+// const http = require('http').createServer(app); // Create HTTP server
+// const io = require('socket.io')(http); // Initialize Socket.IO
+
+
+const io = new Server(server, {
+    cors: {
+      origin: "*",
+      methods: 'GET,PUT,POST,DELETE',
+      optionsSuccessStatus: 200,
+    },
+  });
+
+  io.on('connection', (socket) => {
+    console.log(`User Connected: ${socket.id}`);
+  
+    // Handle chat messages
+    socket.on('chat message', (msg) => {
+      // Create a message object with additional information
+      const message = {
+        id: socket.id, // Unique ID for the message (you might want to use a real message ID)
+        text: msg.text, // The actual message text
+        timestamp: new Date().toISOString(), // Timestamp of when the message was sent
+        sender: socket.id, // ID of the sender
+      };
+  
+      // Broadcast the message to all other connected clients
+      socket.broadcast.emit('chat message', message);
+    });
+  
+    // Handle disconnect
+    socket.on('disconnect', () => {
+      console.log(`User disconnected: ${socket.id}`);
+    });
+  });
+
+// const corsOptions = {
+//     origin: 'http://192.168.0.106:4000', // Change this to allow requests from specific origins
+//     methods: 'GET,PUT,POST,DELETE',
+//     optionsSuccessStatus: 200,
+// };
+
+//app.use(cors(corsOptions));
+app.use(express.json());
+app.use('/api', chatRoutes);
+app.use('/api', messageRoutes);
+
 app.use(bodyParser.json());
 
 app.use(bodyParser.json({ limit: '5mb' }));
@@ -33,6 +81,9 @@ db.once('open', () => {
     console.log('Connected to MongoDB');
 });
 
+
+
+
 // Multer Configuration
 const storage = multer.memoryStorage();
 const upload = multer({
@@ -43,13 +94,37 @@ const upload = multer({
 });
 // Update this line to use your IP address
 //const ipAddress = '192.168.0.109';
-const ipAddress = '192.168.0.102';
+const ipAddress = '192.168.0.109';
 
 
 const port = process.env.PORT || 4000;
 
 app.get("/", (req, res) => {
     res.send("Hello, world!");
+});
+// Fetch user by ID
+app.get("/api/user/:id", async (req, res) => {
+    const userId = req.params.id;
+
+    try {
+        // Find the user by ID
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Return user information
+        const userInfo = {
+            username: user.username,
+            email: user.email,
+        };
+
+        res.status(200).json(userInfo);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ message: "Server Error" });
+    }
 });
 
 // Signup
@@ -105,6 +180,8 @@ app.post("/api/login", async (req, res) => {
         const payload = {
             user: {
                 id: user.id,
+                username: user.username, 
+                email: user.email, 
             },
         };
 
@@ -125,7 +202,7 @@ app.post("/api/login", async (req, res) => {
 app.post('/upload', async (req, res) => {
      console.log('Request Body:', req.body);
     try {
-      const { landName, landSize, location, price, base64Image, option, isAvailable, description } = req.body;
+      const { landName, landSize, location, price, base64Image, option, isAvailable, description, seller } = req.body;
   
       if (!base64Image) {
         return res.status(400).json({ message: 'No base64 image provided' });
@@ -143,6 +220,7 @@ app.post('/upload', async (req, res) => {
         option,
         isAvailable,
         description,
+        seller,
       });
   
       // Save the new Land object to the database
@@ -157,9 +235,9 @@ app.post('/upload', async (req, res) => {
   
   
   
-  app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
-  });
+//   app.listen(port, () => {
+//     console.log(`Server is running on http://localhost:${port}`);
+//   });
 // Handle Land Post with Base64 Image
 // Handle Land Post with Base64 Image
 app.post('/api/lands', upload.single('base64Image'), async (req, res) => {
@@ -204,7 +282,9 @@ app.get('/api/lands', async (req, res) => {
 
 
 
-app.listen(port, ipAddress, () => {
+
+
+server.listen(port, ipAddress, () => {
     console.log(`Server running on ${ipAddress}:${port}`);
 });
   
