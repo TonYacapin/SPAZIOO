@@ -8,6 +8,7 @@ const SignUpScreen = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState(null);
   const [message, setMessage] = useState(null);
+  const [pic, setPic] = useState();
 
   const handleSignUp = async () => {
     try {
@@ -17,15 +18,16 @@ const SignUpScreen = () => {
         return;
       }
 
-      const response = await fetch('http://192.168.0.109:4000/api/signup', {
+      const response = await fetch('http://192.168.0.109:4000/api/user', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          username: username,
+          name: username,
           email: email,
           password: password,
+        
         }),
       });
 

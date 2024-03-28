@@ -5,7 +5,7 @@ const app = express();
 const bodyParser = require("body-parser");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const User = require('./models/User');
+const User = require('./models/UserModel');
 const Land = require('./models/Land');
 const multer = require('multer');
 
@@ -13,9 +13,10 @@ const cors = require("cors");
 const http = require("http");
 const { Server } = require("socket.io");
 
-
+const userRoutes = require("./routes/userRoutes");
 const messageRoutes = require('./routes/messageRoutes');
 const chatRoutes = require('./routes/chatRoutes')
+
 
 app.use(cors());
 
@@ -65,6 +66,7 @@ const io = new Server(server, {
 app.use(express.json());
 app.use('/api', chatRoutes);
 app.use('/api', messageRoutes);
+app.use("/api/user", userRoutes);
 
 app.use(bodyParser.json());
 
@@ -170,6 +172,8 @@ app.post("/api/login", async (req, res) => {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
 
+        console.log("Found user:", user); // Check if user is found
+
         // Compare passwords
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
@@ -185,20 +189,26 @@ app.post("/api/login", async (req, res) => {
             },
         };
 
+        console.log("Payload:", payload); // Check payload before signing
+
         jwt.sign(
             payload,
             process.env.JWT_SECRET,
             { expiresIn: '1h' },
             (err, token) => {
-                if (err) throw err;
+                if (err) {
+                    console.error("JWT Error:", err); // Log JWT error
+                    return res.status(500).json({ message: 'Server Error' });
+                }
                 res.json({ token });
             }
         );
     } catch (err) {
-        console.error(err.message);
+        console.error("Login Error:", err.message); // Log other errors
         res.status(500).json({ message: 'Server Error' });
     }
 });
+
 app.post('/upload', async (req, res) => {
      console.log('Request Body:', req.body);
     try {

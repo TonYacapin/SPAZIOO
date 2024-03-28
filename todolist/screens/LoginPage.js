@@ -15,13 +15,13 @@ const LoginPage = () => {
 
     const handleLogin = async () => {
         try {
-          const response = await axios.post('http://192.168.0.109:4000/api/login', {
+          const response = await axios.post('http://192.168.0.109:4000/api/user/login', {
             email: email,
             password: password,
           });
       
-          const { token } = response.data;
-          await AsyncStorage.setItem('token', token); // Save token to async storage
+        //  const { token } = response.data;
+         // await AsyncStorage.setItem('token', token); // Save token to async storage
       
           console.log('Login successful!');
           navigation.replace('Home');

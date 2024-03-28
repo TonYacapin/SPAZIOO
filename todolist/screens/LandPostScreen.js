@@ -48,7 +48,7 @@ const LandPostScreen = () => {
       // Decode the token to get user ID
       const tokenParts = token.split('.');
       const payload = JSON.parse(atob(tokenParts[1]));
-      const { id: userId, username, email } = payload.user; // Destructure user data from payload
+      const userId = payload.id; // Destructure user data from payload
   
       // Create form data
       const formData = new FormData();
@@ -72,9 +72,7 @@ const LandPostScreen = () => {
       
       // Add seller ID, username, and email to form data
       formData.append('seller', userId);
-      formData.append('username', username);
-      formData.append('email', email);
-  
+
       // Make POST request to upload endpoint
       const response = await axios.post('http://192.168.0.109:4000/upload', formData, {
         headers: {

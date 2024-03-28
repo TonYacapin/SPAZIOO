@@ -1,72 +1,57 @@
-const Message = require('../models/MessageModel');
-const Chat = require('../models/ChatModel');
-// Controller functions
+const asyncHandler = require("express-async-handler");
+const Message = require("../models/MessageModel");
+const User = require("../models/UserModel");
+const Chat = require("../models/ChatModel");
 
-// Create a new message
-exports.createMessage = async (req, res) => {
-    try {
-        const { sender, content, chat } = req.body;
-        const newMessage = new Message({ sender, content, chat });
-        const savedMessage = await newMessage.save();
+//@description     Get all Messages
+//@route           GET /api/Message/:chatId
+//@access          Protected
+const allMessages = asyncHandler(async (req, res) => {
+  try {
+    const messages = await Message.find({ chat: req.params.chatId })
+      .populate("sender", "name pic email")
+      .populate("chat");
+    res.json(messages);
+  } catch (error) {
+    res.status(400);
+    throw new Error(error.message);
+  }
+});
 
-        // Update latestMessage in the associated chat
-        const updatedChat = await Chat.findByIdAndUpdate(
-            chat,
-            { latestMessage: newMessage._id },
-            { new: true }
-        );
+//@description     Create New Message
+//@route           POST /api/Message/
+//@access          Protected
+const sendMessage = asyncHandler(async (req, res) => {
+  const { content, chatId } = req.body;
 
-        res.status(201).json(savedMessage);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
+  if (!content || !chatId) {
+    console.log("Invalid data passed into request");
+    return res.sendStatus(400);
+  }
 
-// Get all messages
-exports.getAllMessages = async (req, res) => {
-    try {
-        const messages = await Message.find();
-        res.status(200).json(messages);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
+  var newMessage = {
+    sender: req.user._id,
+    content: content,
+    chat: chatId,
+  };
 
-// Get a message by ID
-exports.getMessageById = async (req, res) => {
-    try {
-        const message = await Message.findById(req.params.id);
-        if (!message) {
-            return res.status(404).json({ message: 'Message not found' });
-        }
-        res.status(200).json(message);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
+  try {
+    var message = await Message.create(newMessage);
 
-// Update a message by ID
-exports.updateMessage = async (req, res) => {
-    try {
-        const updatedMessage = await Message.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!updatedMessage) {
-            return res.status(404).json({ message: 'Message not found' });
-        }
-        res.status(200).json(updatedMessage);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
+    message = await message.populate("sender", "name pic").execPopulate();
+    message = await message.populate("chat").execPopulate();
+    message = await User.populate(message, {
+      path: "chat.users",
+      select: "name pic email",
+    });
 
-// Delete a message by ID
-exports.deleteMessage = async (req, res) => {
-    try {
-        const deletedMessage = await Message.findByIdAndDelete(req.params.id);
-        if (!deletedMessage) {
-            return res.status(404).json({ message: 'Message not found' });
-        }
-        res.status(204).send();
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
+    await Chat.findByIdAndUpdate(req.body.chatId, { latestMessage: message });
+
+    res.json(message);
+  } catch (error) {
+    res.status(400);
+    throw new Error(error.message);
+  }
+});
+
+module.exports = { allMessages, sendMessage };
