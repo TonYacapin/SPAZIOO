@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Button, Card, Title, Paragraph, IconButton } from 'react-native-paper';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LandDetails = ({ route, navigation }) => {
   const { land } = route.params;
@@ -11,7 +12,18 @@ const LandDetails = ({ route, navigation }) => {
     // Function to fetch seller information
     const fetchSellerInfo = async () => {
       try {
-        const response = await axios.get(`http://192.168.0.109:4000/api/user/${land.seller}`);
+        // Retrieve the JWT token from AsyncStorage
+        const token = await AsyncStorage.getItem('token');
+
+        if (!token) {
+          throw new Error('No token found. Please log in.');
+        }
+
+        const response = await axios.get(`http://192.168.0.111:4000/api/user/${land.seller}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         setSellerInfo(response.data);
       } catch (error) {
         console.error('Error fetching seller information:', error);
@@ -48,7 +60,7 @@ const LandDetails = ({ route, navigation }) => {
             <Paragraph style={styles.info}>Available: {land.isAvailable ? 'Yes' : 'No'}</Paragraph>
             {sellerInfo && (
               <View>
-                <Paragraph style={styles.info}>Seller Username: {sellerInfo.username}</Paragraph>
+                <Paragraph style={styles.info}>Seller Username: {sellerInfo.name}</Paragraph>
                 <Paragraph style={styles.info}>Seller Email: {sellerInfo.email}</Paragraph>
               </View>
             )}

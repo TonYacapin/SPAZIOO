@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, FlatList, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const SpacePage = () => {
   const navigation = useNavigation();
 
   const [lands, setLands] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchLands();
@@ -14,12 +17,27 @@ export const SpacePage = () => {
 
   const fetchLands = async () => {
     try {
-      const response = await fetch('http://192.168.0.109:4000/api/lands'); // Update with your backend URL
-      const data = await response.json();
+      // Retrieve the JWT token from AsyncStorage
+      const token = await AsyncStorage.getItem('token');
+
+      if (!token) {
+        throw new Error('No token found. Please log in.');
+      }
+
+      const response = await axios.get('http://192.168.0.111:4000/api/lands', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = response.data;
       setLands(data);
       setLoading(false);
+      setError(null);
     } catch (error) {
-      console.error('Error fetching lands:', error);
+      console.error('Error fetching lands:', error.message);
+      setError('Error fetching lands. Please try again.');
+      setLoading(false);
     }
   };
 
@@ -44,6 +62,14 @@ export const SpacePage = () => {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>{error}</Text>
       </View>
     );
   }
@@ -118,6 +144,20 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 16,
   },
 });
 

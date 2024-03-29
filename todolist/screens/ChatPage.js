@@ -3,7 +3,7 @@ import { View, ScrollView } from 'react-native';
 import { TextInput, Button, Card, Paragraph, IconButton } from 'react-native-paper';
 import io from 'socket.io-client';
 
-const socket = io('http://192.168.0.109:4000'); // Update with your server URL
+const socket = io('http://192.168.0.111:4000'); // Update with your server URL
 
 function ChatPage() {
   const [messages, setMessages] = useState([]);

@@ -74,7 +74,7 @@ const LandPostScreen = () => {
       formData.append('seller', userId);
 
       // Make POST request to upload endpoint
-      const response = await axios.post('http://192.168.0.109:4000/upload', formData, {
+      const response = await axios.post('http://192.168.0.111:4000/upload', formData, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`, // Include Authorization header with JWT token

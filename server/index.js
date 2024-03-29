@@ -18,6 +18,10 @@ const messageRoutes = require('./routes/messageRoutes');
 const chatRoutes = require('./routes/chatRoutes')
 
 
+const ipAddress = '192.168.0.111';
+
+
+
 app.use(cors());
 
 const server = http.createServer(app);
@@ -64,8 +68,8 @@ const io = new Server(server, {
 
 //app.use(cors(corsOptions));
 app.use(express.json());
-app.use('/api', chatRoutes);
-app.use('/api', messageRoutes);
+app.use('/api/chat', chatRoutes);
+app.use('/api/message', messageRoutes);
 app.use("/api/user", userRoutes);
 
 app.use(bodyParser.json());
@@ -96,8 +100,6 @@ const upload = multer({
 });
 // Update this line to use your IP address
 //const ipAddress = '192.168.0.109';
-const ipAddress = '192.168.0.109';
-
 
 const port = process.env.PORT || 4000;
 
@@ -105,29 +107,29 @@ app.get("/", (req, res) => {
     res.send("Hello, world!");
 });
 // Fetch user by ID
-app.get("/api/user/:id", async (req, res) => {
-    const userId = req.params.id;
+// app.get("/api/user/:id", async (req, res) => {
+//     const userId = req.params.id;
 
-    try {
-        // Find the user by ID
-        const user = await User.findById(userId);
+//     try {
+//         // Find the user by ID
+//         const user = await User.findById(userId);
 
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
-        }
+//         if (!user) {
+//             return res.status(404).json({ message: "User not found" });
+//         }
 
-        // Return user information
-        const userInfo = {
-            username: user.username,
-            email: user.email,
-        };
+//         // Return user information
+//         const userInfo = {
+//             username: user.username,
+//             email: user.email,
+//         };
 
-        res.status(200).json(userInfo);
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).json({ message: "Server Error" });
-    }
-});
+//         res.status(200).json(userInfo);
+//     } catch (err) {
+//         console.error(err.message);
+//         res.status(500).json({ message: "Server Error" });
+//     }
+// });
 
 // Signup
 app.post("/api/signup", async (req, res) => {

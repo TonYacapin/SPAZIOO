@@ -18,7 +18,7 @@ const SignUpScreen = () => {
         return;
       }
 
-      const response = await fetch('http://192.168.0.109:4000/api/user', {
+      const response = await fetch('http://192.168.0.111:4000/api/user', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
