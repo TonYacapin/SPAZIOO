@@ -3,8 +3,8 @@ const Message = require("../models/MessageModel");
 const User = require("../models/UserModel");
 const Chat = require("../models/ChatModel");
 
-//@description     Get all Messages
-//@route           GET /api/Message/:chatId
+//@description     Get all Messages for a chat
+//@route           GET /api/message/:chatId
 //@access          Protected
 const allMessages = asyncHandler(async (req, res) => {
   try {
@@ -13,13 +13,12 @@ const allMessages = asyncHandler(async (req, res) => {
       .populate("chat");
     res.json(messages);
   } catch (error) {
-    res.status(400);
-    throw new Error(error.message);
+    res.status(400).json({ error: error.message });
   }
 });
 
 //@description     Create New Message
-//@route           POST /api/Message/
+//@route           POST /api/message/
 //@access          Protected
 const sendMessage = asyncHandler(async (req, res) => {
   const { content, chatId } = req.body;
@@ -29,29 +28,38 @@ const sendMessage = asyncHandler(async (req, res) => {
     return res.sendStatus(400);
   }
 
-  var newMessage = {
-    sender: req.user._id,
-    content: content,
-    chat: chatId,
-  };
-
   try {
-    var message = await Message.create(newMessage);
+    var newMessage = {
+      sender: req.user._id,
+      content: content,
+      chat: chatId,
+    };
 
-    message = await message.populate("sender", "name pic").execPopulate();
-    message = await message.populate("chat").execPopulate();
-    message = await User.populate(message, {
-      path: "chat.users",
-      select: "name pic email",
-    });
+    // Create a new Message instance
+    var messageInstance = new Message(newMessage);
 
-    await Chat.findByIdAndUpdate(req.body.chatId, { latestMessage: message });
+    // Save the new message
+    var savedMessage = await messageInstance.save();
 
-    res.json(message);
+    console.log("New Message after creation:", savedMessage);
+
+    // Retrieve the saved message with populated fields
+    var populatedMessage = await Message.findById(savedMessage._id)
+      .populate("sender", "name pic")
+      .populate("chat");
+
+    console.log("New Message after populating:", populatedMessage);
+
+    // Update the latestMessage field of the corresponding Chat document
+    await Chat.findByIdAndUpdate(chatId, { latestMessage: populatedMessage });
+
+    res.json(populatedMessage);
   } catch (error) {
-    res.status(400);
-    throw new Error(error.message);
+    res.status(400).json({ error: error.message });
   }
 });
+
+
+
 
 module.exports = { allMessages, sendMessage };

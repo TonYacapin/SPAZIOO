@@ -37,9 +37,31 @@ const LandDetails = ({ route, navigation }) => {
     navigation.goBack();
   };
 
-  const handleContactSeller = () => {
-    console.log('Contact Seller');
-    navigation.navigate('ChatPage');
+  const handleContactSeller = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+  
+      if (!token) {
+        throw new Error('No token found. Please log in.');
+      }
+  
+      const response = await axios.post(
+        'http://192.168.0.111:4000/api/chat',
+        { userId: land.seller },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+  
+      if (response.data && response.data._id) {
+        // Pass sellerInfo to ChatPage
+        navigation.navigate('ChatPage', { sellerInfo, chatData: response.data });
+      }
+    } catch (error) {
+      console.error('Error creating/accessing chat:', error);
+    }
   };
 
   const handleGoogleMaps = () => {
@@ -85,7 +107,7 @@ const LandDetails = ({ route, navigation }) => {
               style={styles.button}
               labelStyle={styles.buttonText}
             >
-              Contact Seller
+              Message Seller
             </Button>
             <Button
               icon="map"
@@ -109,7 +131,6 @@ const LandDetails = ({ route, navigation }) => {
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

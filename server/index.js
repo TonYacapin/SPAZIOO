@@ -28,7 +28,6 @@ const server = http.createServer(app);
 // const http = require('http').createServer(app); // Create HTTP server
 // const io = require('socket.io')(http); // Initialize Socket.IO
 
-
 const io = new Server(server, {
     cors: {
       origin: "*",
@@ -36,7 +35,7 @@ const io = new Server(server, {
       optionsSuccessStatus: 200,
     },
   });
-
+  
   io.on('connection', (socket) => {
     console.log(`User Connected: ${socket.id}`);
   
@@ -45,9 +44,9 @@ const io = new Server(server, {
       // Create a message object with additional information
       const message = {
         id: socket.id, // Unique ID for the message (you might want to use a real message ID)
-        text: msg.text, // The actual message text
-        timestamp: new Date().toISOString(), // Timestamp of when the message was sent
-        sender: socket.id, // ID of the sender
+        text: msg.content, // Use msg.content for the actual message text
+       // timestamp: new Date().toISOString(), // Timestamp of when the message was sent
+        sender: msg.sender, // ID of the sender
       };
   
       // Broadcast the message to all other connected clients
