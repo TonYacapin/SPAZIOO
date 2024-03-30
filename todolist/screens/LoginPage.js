@@ -23,6 +23,7 @@ const LoginPage = () => {
             const { token, name } = response.data;
             await AsyncStorage.setItem('token', token);
             await AsyncStorage.setItem('name', name);
+            await AsyncStorage.setItem('email', email);
 
             console.log('Login successful!');
             navigation.replace('Home', { name: name });

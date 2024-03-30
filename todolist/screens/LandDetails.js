@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Alert } from 'react-native';
 import { Button, Card, Title, Paragraph, IconButton } from 'react-native-paper';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const LandDetails = ({ route, navigation }) => {
   const { land } = route.params;
   const [sellerInfo, setSellerInfo] = useState(null);
+  const [userEmail, setUserEmail] = useState('');
 
   useEffect(() => {
     // Function to fetch seller information
@@ -30,7 +31,17 @@ const LandDetails = ({ route, navigation }) => {
       }
     };
 
+    const getUserEmail = async () => {
+      try {
+        const email = await AsyncStorage.getItem('email');
+        setUserEmail(email);
+      } catch (error) {
+        console.error('Error fetching user email:', error);
+      }
+    };
+
     fetchSellerInfo();
+    getUserEmail();
   }, [land.seller]);
 
   const handleBackButton = () => {
@@ -43,6 +54,11 @@ const LandDetails = ({ route, navigation }) => {
   
       if (!token) {
         throw new Error('No token found. Please log in.');
+      }
+
+      if (sellerInfo && sellerInfo.email === userEmail) {
+        Alert.alert('You are the seller of this land.');
+        return;
       }
   
       const response = await axios.post(

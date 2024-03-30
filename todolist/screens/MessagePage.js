@@ -9,7 +9,10 @@ const MessagePage = () => {
   const [chats, setChats] = useState([]);
   const [loggedInUserId, setLoggedInUserId] = useState('');
   const navigation = useNavigation();
+  const [sellerInfo, setSellerInfo] = useState(null);
+  const [otherUserId, setotherUserId] = useState('');
 
+ 
   useEffect(() => {
     const fetchChats = async () => {
       try {
@@ -56,26 +59,34 @@ const MessagePage = () => {
         console.error('No token found. Please log in.');
         return;
       }
-
+  
       // Find the other user's ID in the users array
       const otherUserId = chatData.users.find(user => user._id !== loggedInUserId)._id;
-
+  
       // Access the chat for the current user and the other user
       const response = await axios.post('http://192.168.0.111:4000/api/chat/', { userId: otherUserId }, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-
-      if (response.data && response.data._id) {
+  
+      const response1 = await axios.get(`http://192.168.0.111:4000/api/user/${otherUserId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setSellerInfo(response1.data);
+  
+      if (response.data && response.data._id && response1.data && response1.data.name) {
         // Navigate to ChatPage with chatData and otherUser information
-        navigation.navigate('ChatPage', { chatData: response.data });
+        navigation.navigate('ChatPage', {sellerInfo: response1.data, chatData: response.data });
       }
     } catch (error) {
       console.error('Error creating/accessing chat:', error);
       Alert.alert('Error', 'Failed to create/access chat. Please try again.');
     }
   };
+  
 
   const renderChatItem = ({ item }) => {
     const otherUser = item.users.find(user => user._id !== loggedInUserId);

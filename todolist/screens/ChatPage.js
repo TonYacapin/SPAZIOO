@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Alert, Text } from 'react-native';
+import { View, ScrollView, Alert } from 'react-native';
 import { TextInput, Button, Card, Paragraph, IconButton, Appbar } from 'react-native-paper';
 import io from 'socket.io-client';
 import axios from 'axios';
@@ -130,14 +130,10 @@ function ChatPage({ route, navigation }) {
         <View key={index} style={[{ marginVertical: 5, maxWidth: '80%' }, messageStyle]}>
           <Card style={contentStyle}>
             <Card.Content>
-              <Text>
-                <Paragraph style={{ fontSize: 16 }}>{messageContent}</Paragraph>
-              </Text>
+              <Paragraph style={{ fontSize: 16 }}>{messageContent}</Paragraph>
             </Card.Content>
             <Card.Actions>
-              <Text>
-                <Paragraph style={{ fontSize: 12, color: '#888' }}>{message.timestamp}</Paragraph>
-              </Text>
+              <Paragraph style={{ fontSize: 12, color: '#888' }}>{message.timestamp}</Paragraph>
             </Card.Actions>
           </Card>
         </View>
@@ -149,7 +145,7 @@ function ChatPage({ route, navigation }) {
     <View style={{ flex: 1, backgroundColor: '#ADC178' }}>
       <Appbar.Header>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content title={sellerInfo.name} />
+        <Appbar.Content title={sellerInfo ? sellerInfo.name : 'Chat'} />
       </Appbar.Header>
       <ScrollView style={{ flex: 1, padding: 10 }}>
         {renderMessages()}
