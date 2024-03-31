@@ -77,6 +77,16 @@ const HomePage = () => {
                         />
                         <Text style={styles.buttonText}>Message</Text>
                     </TouchableOpacity>
+                    <TouchableOpacity style={styles.button} onPress={() => navigation.replace('MapPage')}>
+                        <IconButton
+                            icon="map"
+                            color="#F0EAD2"
+                            size={30}
+                            style={styles.iconButton}
+                            onPress={() => navigation.replace('MapPage')}
+                        />
+                        <Text style={styles.buttonText}>Message</Text>
+                    </TouchableOpacity>
                 </View>
             </View>
 

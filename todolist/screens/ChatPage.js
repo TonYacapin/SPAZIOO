@@ -4,6 +4,7 @@ import { TextInput, Button, Card, Paragraph, IconButton, Appbar } from 'react-na
 import io from 'socket.io-client';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { decode } from 'base-64';
 
 const socket = io('http://192.168.0.111:4000'); // Update with your server URL
 
@@ -23,7 +24,7 @@ function ChatPage({ route, navigation }) {
       }
       
       const tokenParts = token.split('.');
-      const payload = JSON.parse(atob(tokenParts[1]));
+      const payload = JSON.parse(decode(tokenParts[1]));
       const userId = payload.id;
       setLoggedInUserId(userId);
     };
@@ -90,7 +91,7 @@ function ChatPage({ route, navigation }) {
         }
 
         const tokenParts = token.split('.');
-        const payload = JSON.parse(atob(tokenParts[1]));
+        const payload = JSON.parse(decode (tokenParts[1]));
         const userId = payload.id;
 
         const response = await axios.get(`http://192.168.0.111:4000/api/message/${chatData._id}`, {

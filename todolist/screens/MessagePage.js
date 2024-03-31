@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
+import { decode } from 'base-64';
 
 const MessagePage = () => {
   const [chats, setChats] = useState([]);
@@ -44,7 +45,7 @@ const MessagePage = () => {
       }
       
       const tokenParts = token.split('.');
-      const payload = JSON.parse(atob(tokenParts[1]));
+      const payload = JSON.parse(decode (tokenParts[1]));
       const userId = payload.id;
       setLoggedInUserId(userId);
     };

@@ -17,6 +17,7 @@ import SignUp from './screens/SignUp';
 import LandPostScreen from './screens/LandPostScreen';
 import LandDetails from './screens/LandDetails';
 import ChatPage from './screens/ChatPage';
+import MapPage from './screens/MapPage';
 
 
 
@@ -36,6 +37,7 @@ const App = () => {
         <Stack.Screen name="LandPostScreen" component={LandPostScreen} options={{headerShown: false}}/>
         <Stack.Screen name="LandDetails" component={LandDetails} options={{headerShown: false}}/>
         <Stack.Screen name="ChatPage" component={ChatPage} options={{headerShown: false}}/>
+        <Stack.Screen name="MapPage" component={MapPage} options={{headerShown: false}}/>
 
       </Stack.Navigator>
     </NavigationContainer>

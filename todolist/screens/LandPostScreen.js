@@ -5,6 +5,7 @@ import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import jwt_decode from 'jwt-decode';
+import { decode } from 'base-64';
 
 
 const LandPostScreen = () => {
@@ -47,7 +48,7 @@ const LandPostScreen = () => {
   
       // Decode the token to get user ID
       const tokenParts = token.split('.');
-      const payload = JSON.parse(atob(tokenParts[1]));
+      const payload = JSON.parse(decode(tokenParts[1]));
       const userId = payload.id; // Destructure user data from payload
   
       // Create form data
