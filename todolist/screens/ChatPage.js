@@ -5,8 +5,9 @@ import io from 'socket.io-client';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { decode } from 'base-64';
+import address from './config.js';
 
-const socket = io('http://192.168.0.111:4000'); // Update with your server URL
+const socket = io(`${address}`); // Update with your server URL
 
 function ChatPage({ route, navigation }) {
   const { sellerInfo, chatData } = route.params;
@@ -56,7 +57,7 @@ function ChatPage({ route, navigation }) {
         timestamp: new Date().toISOString(),
       };
   
-      const response = await axios.post('http://192.168.0.111:4000/api/message', newMessage, {
+      const response = await axios.post(`http://${address}/api/message`, newMessage, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -94,7 +95,7 @@ function ChatPage({ route, navigation }) {
         const payload = JSON.parse(decode (tokenParts[1]));
         const userId = payload.id;
 
-        const response = await axios.get(`http://192.168.0.111:4000/api/message/${chatData._id}`, {
+        const response = await axios.get(`http://${address}/api/message/${chatData._id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

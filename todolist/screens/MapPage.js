@@ -3,6 +3,7 @@ import { StyleSheet, View, Text, Button, Platform } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { dummyData } from '../data/dummyData'; // Import dummyData array from data folder
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
+import address from './config.js';
 
 const MapScreen = () => {
   const navigation = useNavigation(); // Initialize useNavigation hook

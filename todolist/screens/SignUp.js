@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import address from './config.js';
 
 const SignUpScreen = () => {
   const [username, setUsername] = useState('');
@@ -18,7 +19,7 @@ const SignUpScreen = () => {
         return;
       }
 
-      const response = await fetch('http://192.168.0.111:4000/api/user', {
+      const response = await fetch(`http://${address}/api/user`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import jwt_decode from 'jwt-decode';
 import { decode } from 'base-64';
+import address from './config.js';
 
 
 const LandPostScreen = () => {
@@ -75,7 +76,7 @@ const LandPostScreen = () => {
       formData.append('seller', userId);
 
       // Make POST request to upload endpoint
-      const response = await axios.post('http://192.168.0.111:4000/upload', formData, {
+      const response = await axios.post(`http://${address}/upload`, formData, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`, // Include Authorization header with JWT token

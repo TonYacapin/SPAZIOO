@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, FlatList, ActivityIndi
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import address from './config.js';
 
 export const SpacePage = () => {
   const navigation = useNavigation();
@@ -24,7 +25,7 @@ export const SpacePage = () => {
         throw new Error('No token found. Please log in.');
       }
 
-      const response = await axios.get('http://192.168.0.111:4000/api/lands', {
+      const response = await axios.get(`http://${address}/api/lands`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

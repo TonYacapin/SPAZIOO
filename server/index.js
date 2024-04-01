@@ -18,7 +18,7 @@ const messageRoutes = require('./routes/messageRoutes');
 const chatRoutes = require('./routes/chatRoutes')
 
 
-const ipAddress = '192.168.0.111';
+const ipAddress = process.env.SERVER_API;
 
 
 

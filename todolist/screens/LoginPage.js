@@ -5,6 +5,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import espasyoLogo from '../assets/Logo1.png';
+import address from './config.js';
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
@@ -15,7 +16,7 @@ const LoginPage = () => {
 
     const handleLogin = async () => {
         try {
-            const response = await axios.post('http://192.168.0.111:4000/api/user/login', {
+            const response = await axios.post(`http://${address}/api/user/login`, {
                 email: email,
                 password: password,
             });

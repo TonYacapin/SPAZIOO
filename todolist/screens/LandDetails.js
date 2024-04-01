@@ -3,6 +3,7 @@ import { View, StyleSheet, Alert } from 'react-native';
 import { Button, Card, Title, Paragraph, IconButton } from 'react-native-paper';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import address from './config.js';
 
 const LandDetails = ({ route, navigation }) => {
   const { land } = route.params;
@@ -20,7 +21,7 @@ const LandDetails = ({ route, navigation }) => {
           throw new Error('No token found. Please log in.');
         }
 
-        const response = await axios.get(`http://192.168.0.111:4000/api/user/${land.seller}`, {
+        const response = await axios.get(`http://${address}/api/user/${land.seller}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -62,7 +63,7 @@ const LandDetails = ({ route, navigation }) => {
       }
   
       const response = await axios.post(
-        'http://192.168.0.111:4000/api/chat',
+        `http://${address}/api/chat`,
         { userId: land.seller },
         {
           headers: {

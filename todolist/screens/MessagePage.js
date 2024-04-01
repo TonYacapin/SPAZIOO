@@ -5,6 +5,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { decode } from 'base-64';
+import address from './config.js';
 
 const MessagePage = () => {
   const [chats, setChats] = useState([]);
@@ -23,7 +24,7 @@ const MessagePage = () => {
           return;
         }
 
-        const response = await axios.get('http://192.168.0.111:4000/api/chat/', {
+        const response = await axios.get(`http://${address}/api/chat/`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -65,13 +66,13 @@ const MessagePage = () => {
       const otherUserId = chatData.users.find(user => user._id !== loggedInUserId)._id;
   
       // Access the chat for the current user and the other user
-      const response = await axios.post('http://192.168.0.111:4000/api/chat/', { userId: otherUserId }, {
+      const response = await axios.post(  `http://${address}/api/chat/`, { userId: otherUserId }, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
   
-      const response1 = await axios.get(`http://192.168.0.111:4000/api/user/${otherUserId}`, {
+      const response1 = await axios.get(  `http://${address}/api/user/${otherUserId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

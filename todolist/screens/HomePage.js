@@ -6,7 +6,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import espasyoIcon from '../assets/Logo1.png';
-
+import address from './config.js';
 const HomePage = () => {
     console.log("Rendering HomePage component");
     const navigation = useNavigation();
