@@ -34,6 +34,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
   if (userExists) {
     res.status(400);
+    res.status(400).json({ message: 'User already exists' });
     throw new Error("User already exists");
   }
 
@@ -45,6 +46,7 @@ const registerUser = asyncHandler(async (req, res) => {
   });
 
   if (user) {
+    res.status(201).json({ message: 'User created successfully' });
     res.status(201).json({
       _id: user._id,
       name: user.name,
@@ -78,6 +80,7 @@ const authUser = asyncHandler(async (req, res) => {
     });
   } else {
     res.status(401);
+    res.status(401).json({ message: 'Invalid Email or Password' });
     throw new Error("Invalid Email or Password");
   }
 });

@@ -5,8 +5,8 @@ import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import jwt_decode from 'jwt-decode';
-import { decode } from 'base-64';
 import address from './config.js';
+import { decode } from 'base-64';
 
 
 const LandPostScreen = () => {
@@ -52,31 +52,29 @@ const LandPostScreen = () => {
       const payload = JSON.parse(decode(tokenParts[1]));
       const userId = payload.id; // Destructure user data from payload
   
-      // Create form data
-      const formData = new FormData();
-      formData.append('landName', landName);
-      formData.append('landSize', landSize);
-      formData.append('location', location);
-      formData.append('price', price);
+      // Create data object with the required fields
+      const data = {
+        landName,
+        landSize,
+        location,
+        price,
+        option,
+        isAvailable,
+        description,
+        seller: userId,
+      };
   
       // Check if imageUri and imageName are not null
       if (imageUri && imageName) {
         // Convert image to base64
         const base64 = await convertImageToBase64(imageUri);
-  
-        // Set the base64 image in formData
-        formData.append('base64Image', base64);
+        data.base64Image = base64;
       }
   
-      formData.append('option', option);
-      formData.append('isAvailable', isAvailable);
-      formData.append('description', description);
-      
-      // Add seller ID, username, and email to form data
-      formData.append('seller', userId);
-
+      console.log(data);
+  
       // Make POST request to upload endpoint
-      const response = await axios.post(`http://${address}/upload`, formData, {
+      const response = await axios.post('http://192.168.0.102:4000/upload', data, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`, // Include Authorization header with JWT token
@@ -105,6 +103,7 @@ const LandPostScreen = () => {
       setMessage(null);
     }
   };
+  
   
   const convertImageToBase64 = async (uri) => {
     try {

@@ -31,7 +31,7 @@ const LoginPage = () => {
         } catch (error) {
             if (error.response) {
                 console.error('Login failed:', error.response.data.message);
-                setError(error.response.data.message);
+                setError( "Invalid Email or Password");
             } else if (error.request) {
                 console.error('No response received:', error.request);
                 setError('No response received. Please check your network connection.');

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import address from './config.js';
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook if using React Navigation
 
 const SignUpScreen = () => {
   const [username, setUsername] = useState('');
@@ -9,7 +9,7 @@ const SignUpScreen = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState(null);
   const [message, setMessage] = useState(null);
-  const [pic, setPic] = useState();
+  const navigation = useNavigation(); // Initialize useNavigation
 
   const handleSignUp = async () => {
     try {
@@ -19,7 +19,7 @@ const SignUpScreen = () => {
         return;
       }
 
-      const response = await fetch(`http://${address}/api/user`, {
+      const response = await fetch(`http://${address}/api/user/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -113,6 +113,14 @@ const SignUpScreen = () => {
       >
         <Text style={styles.signUpText}>SIGN UP</Text>
       </TouchableOpacity>
+
+      {/* Back Button */}
+      <TouchableOpacity
+        style={styles.backBtn}
+        onPress={() => navigation.goBack()} // Use navigation.goBack() to go back
+      >
+        <Text style={styles.backText}>Back</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -153,6 +161,12 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   signUpText: {
+    color: '#ADC178',
+  },
+  backBtn: {
+    marginTop: 10,
+  },
+  backText: {
     color: '#ADC178',
   },
   error: {

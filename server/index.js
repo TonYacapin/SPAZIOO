@@ -8,6 +8,7 @@ const jwt = require('jsonwebtoken');
 const User = require('./models/UserModel');
 const Land = require('./models/Land');
 const multer = require('multer');
+const cloudinary = require('cloudinary').v2;
 
 const cors = require("cors");
 const http = require("http");
@@ -16,65 +17,36 @@ const { Server } = require("socket.io");
 const userRoutes = require("./routes/userRoutes");
 const messageRoutes = require('./routes/messageRoutes');
 const chatRoutes = require('./routes/chatRoutes')
-
+const multerRoutes = require('./routes/multerRoute')
 
 const ipAddress = process.env.SERVER_API;
 
-
-
 app.use(cors());
 
-const server = http.createServer(app);
-// const http = require('http').createServer(app); // Create HTTP server
-// const io = require('socket.io')(http); // Initialize Socket.IO
 
-const io = new Server(server, {
-    cors: {
-      origin: "*",
-      methods: 'GET,PUT,POST,DELETE',
-      optionsSuccessStatus: 200,
-    },
-  });
-  
-  io.on('connection', (socket) => {
-    console.log(`User Connected: ${socket.id}`);
-  
-    // Handle chat messages
-    socket.on('chat message', (msg) => {
-      // Create a message object with additional information
-      const message = {
-        id: socket.id, // Unique ID for the message (you might want to use a real message ID)
-        text: msg.content, // Use msg.content for the actual message text
-       // timestamp: new Date().toISOString(), // Timestamp of when the message was sent
-        sender: msg.sender, // ID of the sender
-      };
-  
-      // Broadcast the message to all other connected clients
-      socket.broadcast.emit('chat message', message);
-    });
-  
-    // Handle disconnect
-    socket.on('disconnect', () => {
-      console.log(`User disconnected: ${socket.id}`);
-    });
-  });
+app.use(express.json({ limit: '10mb' })); 
 
-// const corsOptions = {
-//     origin: 'http://192.168.0.106:4000', // Change this to allow requests from specific origins
-//     methods: 'GET,PUT,POST,DELETE',
-//     optionsSuccessStatus: 200,
-// };
 
-//app.use(cors(corsOptions));
-app.use(express.json());
+app.use('/api/multer', multerRoutes)
 app.use('/api/chat', chatRoutes);
 app.use('/api/message', messageRoutes);
 app.use("/api/user", userRoutes);
 
-app.use(bodyParser.json());
+//app.use(bodyParser.json());
+//app.use(bodyParser.json({ limit: '5mb' }));
+//app.use(bodyParser.urlencoded({ extended: true, limit: '5mb' }));
 
-app.use(bodyParser.json({ limit: '5mb' }));
-app.use(bodyParser.urlencoded({ extended: true, limit: '5mb' }));
+// Error handling middleware
+// app.use((err, req, res, next) => {
+//     if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+//       // Handle JSON parsing error
+//       console.error('JSON Parsing Error:', err.message);
+//       res.status(400).json({ error: 'Invalid JSON' });
+//     } else {
+//       next();
+//     }
+//   });
+  
 
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
@@ -86,180 +58,74 @@ db.once('open', () => {
     console.log('Connected to MongoDB');
 });
 
-
-
-
-// Multer Configuration
+// Multer Configuration for file uploads
 const storage = multer.memoryStorage();
-const upload = multer({
-  storage: storage,
-  limits: {
-    fileSize: 100, // 50 MB, adjust as needed
-  },
-});
-// Update this line to use your IP address
-//const ipAddress = '192.168.0.109';
+const upload = multer({ storage: storage });
 
-const port = process.env.PORT || 4000;
-
-app.get("/", (req, res) => {
-    res.send("Hello, world!");
-});
-// Fetch user by ID
-// app.get("/api/user/:id", async (req, res) => {
-//     const userId = req.params.id;
-
-//     try {
-//         // Find the user by ID
-//         const user = await User.findById(userId);
-
-//         if (!user) {
-//             return res.status(404).json({ message: "User not found" });
-//         }
-
-//         // Return user information
-//         const userInfo = {
-//             username: user.username,
-//             email: user.email,
-//         };
-
-//         res.status(200).json(userInfo);
-//     } catch (err) {
-//         console.error(err.message);
-//         res.status(500).json({ message: "Server Error" });
-//     }
-// });
-
-// Signup
-app.post("/api/signup", async (req, res) => {
-    const { username, email, password } = req.body;
-
-    try {
-        // Check if user already exists
-        let user = await User.findOne({ email });
-        if (user) {
-            return res.status(400).json({ message: 'User already exists' });
-        }
-
-        // Create new user
-        user = new User({
-            username,
-            email,
-            password,
-        });
-
-        // Hash password
-        const salt = await bcrypt.genSalt(10);
-        user.password = await bcrypt.hash(password, salt);
-
-        // Save user to database
-        await user.save();
-
-        res.status(201).json({ message: 'User created successfully' });
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).json({ message: 'Server Error' });
-    }
+// Cloudinary Configuration
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// Login
-app.post("/api/login", async (req, res) => {
-    const { email, password } = req.body;
-
-    try {
-        // Check if user exists
-        let user = await User.findOne({ email });
-        if (!user) {
-            return res.status(400).json({ message: 'Invalid credentials' });
-        }
-
-        console.log("Found user:", user); // Check if user is found
-
-        // Compare passwords
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(400).json({ message: 'Invalid credentials' });
-        }
-
-        // Create and return JWT token
-        const payload = {
-            user: {
-                id: user.id,
-                username: user.username, 
-                email: user.email, 
-            },
-        };
-
-        console.log("Payload:", payload); // Check payload before signing
-
-        jwt.sign(
-            payload,
-            process.env.JWT_SECRET,
-            { expiresIn: '1h' },
-            (err, token) => {
-                if (err) {
-                    console.error("JWT Error:", err); // Log JWT error
-                    return res.status(500).json({ message: 'Server Error' });
-                }
-                res.json({ token });
-            }
-        );
-    } catch (err) {
-        console.error("Login Error:", err.message); // Log other errors
-        res.status(500).json({ message: 'Server Error' });
-    }
-});
 
 app.post('/upload', async (req, res) => {
-     console.log('Request Body:', req.body);
+    
+    console.log('Request Body:', req.body._parts);
+   try {
+     const { landName, landSize, location, price, base64Image, option, isAvailable, description, seller } = req.body;
+     if (!base64Image) {
+       return res.status(400).json({ message: 'No base64 image provided' });
+     }
+ 
+     const imageUrl = `data:image/jpeg;base64,${base64Image}`;
+ 
+     // Create a new Land object
+     const newLand = new Land({
+       landName,
+       landSize,
+       location,
+       price,
+       imageUrl, // Save the imageUrl as data URI
+       option,
+       isAvailable,
+       description,
+       seller,
+     });
+ 
+     // Save the new Land object to the database
+     const savedLand = await newLand.save();
+ 
+     res.status(201).json(savedLand);
+   } catch (error) {
+     console.error("Error posting land:", error);
+     res.status(500).json({ error: 'Internal server error' });
+   }
+ });
+// Handle Land Post with Cloudinary Image Upload
+app.post('/api/lands', upload.single('image'), async (req, res) => {
     try {
-      const { landName, landSize, location, price, base64Image, option, isAvailable, description, seller } = req.body;
-  
-      if (!base64Image) {
-        return res.status(400).json({ message: 'No base64 image provided' });
-      }
-  
-      const imageUrl = `data:image/jpeg;base64,${base64Image}`;
-  
-      // Create a new Land object
-      const newLand = new Land({
-        landName,
-        landSize,
-        location,
-        price,
-        imageUrl, // Save the imageUrl as data URI
-        option,
-        isAvailable,
-        description,
-        seller,
-      });
-  
-      // Save the new Land object to the database
-      const savedLand = await newLand.save();
-  
-      res.status(201).json(savedLand);
-    } catch (error) {
-      console.error("Error posting land:", error);
-      res.status(500).json({ error: 'Internal server error' });
-    }
-  });
-  
-  
-  
-//   app.listen(port, () => {
-//     console.log(`Server is running on http://localhost:${port}`);
-//   });
-// Handle Land Post with Base64 Image
-// Handle Land Post with Base64 Image
-app.post('/api/lands', upload.single('base64Image'), async (req, res) => {
-    try {
+        console.log('Request Body:', req.body); 
+        res.json({ requestBody: req.body, uploadedFile: req.file });
+
+        const { landName, landSize, location, price, option, isAvailable, description, seller } = req.body;
+
+        // Check if file was uploaded
         if (!req.file) {
             return res.status(400).json({ message: 'No file uploaded' });
         }
-
-        const { landName, landSize, location, price } = req.body;
-        const imageUrl = req.file.buffer.toString('base64');
         
+        // Upload image to Cloudinary
+        const result = await cloudinary.uploader.upload(req.file.buffer, {
+            folder: 'land_images', // Optional folder in Cloudinary
+            format: 'jpg', // Format of the uploaded image
+        });
+
+        console.log('Cloudinary Result:', result);
+
+        const imageUrl = result.secure_url; // URL of the uploaded image in Cloudinary
+
         // Create a new Land object
         const newLand = new Land({
             landName,
@@ -267,15 +133,21 @@ app.post('/api/lands', upload.single('base64Image'), async (req, res) => {
             location,
             price,
             imageUrl,
+            option,
+            isAvailable,
+            description,
+            seller,
         });
       
         // Save the new Land object to the database
         const savedLand = await newLand.save();
-      
+
+        console.log('Saved Land:', savedLand);
+
         res.status(201).json(savedLand);
     } catch (error) {
         console.error('Error posting land:', error);
-        res.status(500).send('Server Error');
+        res.status(500).send(`Server Error ${error}`);
     }
 });
 
@@ -291,11 +163,37 @@ app.get('/api/lands', async (req, res) => {
     }
 });
 
+const port = process.env.PORT || 4000;
 
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+      origin: "*",
+      methods: 'GET,PUT,POST,DELETE',
+      optionsSuccessStatus: 200,
+    },
+});
 
-
+io.on('connection', (socket) => {
+    console.log(`User Connected: ${socket.id}`);
+  
+    // Handle chat messages
+    socket.on('chat message', (msg) => {
+        const message = {
+            id: socket.id,
+            text: msg.content,
+            sender: msg.sender,
+        };
+  
+        socket.broadcast.emit('chat message', message);
+    });
+  
+    // Handle disconnect
+    socket.on('disconnect', () => {
+        console.log(`User disconnected: ${socket.id}`);
+    });
+});
 
 server.listen(port, ipAddress, () => {
     console.log(`Server running on ${ipAddress}:${port}`);
 });
-  

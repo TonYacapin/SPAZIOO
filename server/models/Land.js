@@ -5,7 +5,7 @@ const landSchema = new mongoose.Schema({
   landSize: { type: String, required: true },
   location: { type: String, required: true },
   price: { type: String, required: true },
-  imageUrl: { type: String, required: true },
+  imageUrl: { type: String, default: 'https://example.com/image3.jpg' },
   option: { type: String, enum: ['Rent', 'Lease', 'Buy'], required: true },
   isAvailable: { type: Boolean, default: true },
   description: { type: String, required: true },
@@ -19,3 +19,6 @@ const landSchema = new mongoose.Schema({
 const Land = mongoose.model('Land', landSchema);
 
 module.exports = Land;
+
+
+
