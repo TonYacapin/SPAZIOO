@@ -1,12 +1,15 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, Button, Platform } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
-import { dummyData } from '../data/dummyData'; // Import dummyData array from data folder
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
+import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
 import address from './config.js';
 
 const MapScreen = () => {
-  const navigation = useNavigation(); // Initialize useNavigation hook
+  const navigation = useNavigation();
+  const [lands, setLands] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const initialRegion = {
     latitude: 16.2014,
@@ -15,44 +18,62 @@ const MapScreen = () => {
     longitudeDelta: 0.5,
   };
 
-  // Check if the platform is web
   const isWeb = Platform.OS === 'web';
 
-  // Define handleBackButton function to navigate back to the previous screen
   const handleBackButton = () => {
     navigation.replace('Home');
   };
 
+  useEffect(() => {
+    const fetchLands = async () => {
+      try {
+        const response = await axios.get('http://192.168.0.105:4000/api/lands');
+        setLands(response.data);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching lands:', error);
+        setError('Error fetching lands. Please try again later.');
+        setLoading(false);
+      }
+    };
+
+    fetchLands();
+  }, []);
+
   return (
     <View style={styles.container}>
-             {/* {isWeb ? (
-        <WebView
-          source={{ uri: 'https://your-map-website-url.com' }} // Replace with your Google Maps JavaScript API URL
-          style={styles.map}
-        />
-      ) : ( */}
-      <MapView
-        style={styles.map}
-        provider={PROVIDER_GOOGLE}
-        initialRegion={initialRegion}
-      >
-        {dummyData.map((marker, index) => (
-          <Marker
-            key={index}
-            coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
-            title={marker.title}
-            description={`Price: ₱${marker.price}, Rating: ${marker.rating}`}
-          />
-        ))}
-      </MapView>
-      <View style={styles.textContainer}>
-        <Text style={styles.text}>Nueva Vizcaya, Philippines</Text>
-      </View>
-      {!isWeb && (
-        <View style={styles.backButtonContainer}>
-          <Button title="Back" onPress={handleBackButton} />
-        </View>
+      {!loading && !error && lands.length > 0 && (
+        <>
+          <MapView
+            style={styles.map}
+            provider={PROVIDER_GOOGLE}
+            initialRegion={initialRegion}
+          >
+            {lands.map((land, index) => (
+              <Marker
+                key={index}
+                coordinate={{
+                  latitude: land?.location?.coordinates[1],
+                  longitude: land?.location?.coordinates[0],
+                }}
+                title={land?.landName || 'Unknown Name'}
+                description={`Price: ₱${land?.price || 'Unknown'}, Size: ${land?.landSize || 'Unknown'}`}
+              />
+            ))}
+          </MapView>
+          <View style={styles.textContainer}>
+            <Text style={styles.text}>Nueva Vizcaya, Philippines</Text>
+          </View>
+          {!isWeb && (
+            <View style={styles.backButtonContainer}>
+              <Button title="Back" onPress={handleBackButton} />
+            </View>
+          )}
+        </>
       )}
+      {loading && <Text>Loading...</Text>}
+      {error && <Text>{error}</Text>}
+      {!loading && !error && lands.length === 0 && <Text>No data found.</Text>}
     </View>
   );
 };
