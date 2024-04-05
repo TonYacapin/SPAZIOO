@@ -93,7 +93,7 @@ const LandDetails = ({ route, navigation }) => {
           <Title style={styles.title}>{land.landName}</Title>
           <View style={styles.infoContainer}>
             <Paragraph style={styles.info}>Size: {land.landSize}</Paragraph>
-            <Paragraph style={styles.info}>Location: {land.location}</Paragraph>
+            <Paragraph style={styles.info}>Location: {land.locationName}</Paragraph>
             <Paragraph style={styles.info}>Price: {land.price}</Paragraph>
             <Paragraph style={styles.info}>Option: {land.option}</Paragraph>
             <Paragraph style={styles.info}>Available: {land.isAvailable ? 'Yes' : 'No'}</Paragraph>

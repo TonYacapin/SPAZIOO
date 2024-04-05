@@ -1,18 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Platform, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  ScrollView,
+} from 'react-native';
+import { TextInput, RadioButton, Button } from 'react-native-paper';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import jwt_decode from 'jwt-decode';
-import address from './config.js';
 import { decode } from 'base-64';
-
+import { MaterialIcons } from '@expo/vector-icons';
 
 const LandPostScreen = () => {
   const [landName, setLandName] = useState('');
   const [landSize, setLandSize] = useState('');
   const [location, setLocation] = useState('');
+  const [locationName, setLocationName] = useState('');
   const [price, setPrice] = useState('');
   const [imageUri, setImageUri] = useState(null);
   const [imageName, setImageName] = useState('');
@@ -22,74 +29,76 @@ const LandPostScreen = () => {
   const [option, setOption] = useState('Buy');
   const [isAvailable, setIsAvailable] = useState(true);
   const [description, setDescription] = useState('');
+  const [selectedLocation, setSelectedLocation] = useState({}); // Default empty object
 
   const navigation = useNavigation();
+  const route = useRoute();
+
+  useEffect(() => {
+    if (route.params && route.params.selectedLocation) {
+      setSelectedLocation(route.params.selectedLocation);
+    }
+    if (route.params && route.params.selectedLocationAddress) {
+      setSelectedLocation(route.params.selectedCoordinate);
+      setLocationName(route.params.selectedLocationAddress);
+    }
+    console.log('Selected Location:', selectedLocation);
+  }, [route.params]);
 
   useEffect(() => {
     (async () => {
-      if (Platform.OS !== 'web') {
-        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== 'granted') {
-          alert('Sorry, we need camera roll permissions to make this work!');
-        }
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        alert('Sorry, we need camera roll permissions to make this work!');
       }
     })();
   }, []);
 
-
   const handleSignUp = async () => {
     try {
-      // Retrieve the JWT token from AsyncStorage
       const token = await AsyncStorage.getItem('token');
-      
       if (!token) {
         console.error('No token found. Please log in.');
         return;
       }
-  
-      // Decode the token to get user ID
+
       const tokenParts = token.split('.');
       const payload = JSON.parse(decode(tokenParts[1]));
-      const userId = payload.id; // Destructure user data from payload
-  
-      // Create data object with the required fields
+      const userId = payload.id;
+
       const data = {
         landName,
         landSize,
-        location,
+        locationName,
+        location: {
+          type: 'Point',
+          coordinates: [selectedLocation.longitude, selectedLocation.latitude],
+        },
         price,
         option,
         isAvailable,
         description,
         seller: userId,
       };
-  
-      // Check if imageUri and imageName are not null
+
       if (imageUri && imageName) {
-        // Convert image to base64
         const base64 = await convertImageToBase64(imageUri);
         data.base64Image = base64;
       }
-  
-      console.log(data);
-  
-      // Make POST request to upload endpoint
-      const response = await axios.post('http://192.168.0.102:4000/upload', data, {
+
+      const response = await axios.post('http://192.168.0.105:4000/upload', data, {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`, // Include Authorization header with JWT token
+          Authorization: `Bearer ${token}`,
         },
       });
-  
-      console.log('Response:', response.data);
-  
+
       if (response.status >= 200 && response.status < 300) {
-        // Reset form fields after successful post
         setMessage('Land posted successfully!');
         setError(null);
         setLandName('');
         setLandSize('');
-        setLocation('');
+        setLocationName('');
         setPrice('');
         setImageUri(null);
         setImageName('');
@@ -103,8 +112,7 @@ const LandPostScreen = () => {
       setMessage(null);
     }
   };
-  
-  
+
   const convertImageToBase64 = async (uri) => {
     try {
       const response = await fetch(uri);
@@ -135,8 +143,6 @@ const LandPostScreen = () => {
         quality: 1,
       });
 
-      console.log('Image Picker Result:', result);
-
       if (!result.cancelled && result.assets.length > 0 && result.assets[0].uri) {
         setImageUri(result.assets[0].uri);
         setImageName(result.assets[0].uri.split('/').pop());
@@ -148,162 +154,167 @@ const LandPostScreen = () => {
     }
   };
 
-  useEffect(() => {
-    console.log('Image URI:', imageUri);
-  }, [imageUri]);
+  const handlePinpointLocation = () => {
+    navigation.navigate('GeocodingMap', {
+      onLocationSelect: handleLocationSelect,
+    });
+  };
+
+  const handleLocationSelect = (location, address) => {
+    setSelectedLocation(location);
+    setLocationName(address);
+  };
 
   return (
-    <View style={styles.container}>
-    <Text style={styles.logo}>Post Land</Text>
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.logo}>Post Land</Text>
 
-    {error && <Text style={styles.error}>{error}</Text>}
-    {message && <Text style={styles.message}>{message}</Text>}
+      {error && <Text style={styles.error}>{error}</Text>}
+      {message && <Text style={styles.message}>{message}</Text>}
 
-    <View style={styles.inputView}>
       <TextInput
-        style={styles.inputText}
-        placeholder="Land Name"
-        onChangeText={(text) => setLandName(text)}
+        label="Land Name"
         value={landName}
+        onChangeText={(text) => setLandName(text)}
+        style={styles.input}
       />
-    </View>
 
-    <View style={styles.inputView}>
       <TextInput
-        style={styles.inputText}
-        placeholder="Land Size"
-        onChangeText={(text) => setLandSize(text)}
+        label="Land Size"
         value={landSize}
+        onChangeText={(text) => setLandSize(text)}
+        style={styles.input}
       />
-    </View>
 
-    <View style={styles.inputView}>
-      <TextInput
-        style={styles.inputText}
-        placeholder="Location"
-        onChangeText={(text) => setLocation(text)}
-        value={location}
-      />
-    </View>
-
-    <View style={styles.inputView}>
-      <TextInput
-        style={styles.inputText}
-        placeholder="Price"
-        onChangeText={(text) => setPrice(text)}
-        value={price}
-      />
-    </View>
-
-    <View style={styles.radioContainer}>
-      <Text>Option:</Text>
-      <View style={styles.radioGroup}>
-        <TouchableOpacity
-          style={[styles.radioButton, option === 'Rent' && styles.radioButtonSelected]}
-          onPress={() => setOption('Rent')}
-        >
-          <Text style={styles.radioButtonText}>Rent</Text>
+      <View style={styles.locationContainer}>
+        <ScrollView style={styles.locationScrollView}>
+          <TextInput
+            label="Location"
+            value={locationName}
+            onChangeText={(text) => setLocationName(text)}
+            style={styles.locationInput}
+            multiline
+            textAlignVertical="top"
+            placeholder="Enter location here"
+            disabled
+          />
+        </ScrollView>
+        <TouchableOpacity style={styles.buttonLocation} onPress={handlePinpointLocation}>
+          <MaterialIcons name="location-on" size={24} color="#333" />
+          <Text style={styles.buttonText}>Pinpoint Location</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.radioButton, option === 'Lease' && styles.radioButtonSelected]}
-          onPress={() => setOption('Lease')}
-          >
-            <Text style={styles.radioButtonText}>Lease</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.radioButton, option === 'Buy' && styles.radioButtonSelected]}
-            onPress={() => setOption('Buy')}
-          >
-            <Text style={styles.radioButtonText}>Buy</Text>
-          </TouchableOpacity>
-        </View>
       </View>
 
-      <View style={styles.inputView}>
-        <TextInput
-          style={styles.inputText}
-          placeholder="Land Description"
-          onChangeText={(text) => setDescription(text)}
-          value={description}
-          multiline={true}
-          numberOfLines={4}
-        />
+      <TextInput
+        label="Price"
+        value={price}
+        onChangeText={(text) => setPrice(text)}
+        style={styles.input}
+      />
+
+      <View style={styles.radioContainer}>
+        <Text>Option:</Text>
+        <RadioButton.Group onValueChange={(newValue) => setOption(newValue)} value={option}>
+          <View style={styles.radioGroup}>
+            <RadioButton.Item label="Rent" value="Rent" color="#ADC178" />
+            <RadioButton.Item label="Lease" value="Lease" color="#ADC178" />
+            <RadioButton.Item label="Buy" value="Buy" color="#ADC178" />
+          </View>
+        </RadioButton.Group>
       </View>
 
-      <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
-        <Text style={styles.imagePickerText}>Select Image</Text>
+      <TextInput
+        label="Land Description"
+        value={description}
+        onChangeText={(text) => setDescription(text)}
+        multiline
+        numberOfLines={4}
+        style={[styles.input, styles.textArea]}
+      />
+
+      <TouchableOpacity style={styles.button} onPress={pickImage}>
+       {/* <MaterialIcons name="image" size={24} color="#333" /> */}
+        <Text style={styles.buttonText}>SELECT IMAGE</Text>
       </TouchableOpacity>
 
-      {imageUri && (
-        <Image source={{ uri: imageUri }} style={styles.imagePreview} />
-      )}
+      {imageUri && <Image source={{ uri: imageUri }} style={styles.imagePreview} />}
 
-      <TouchableOpacity style={styles.signUpBtn} onPress={handleSignUp}>
-        <Text style={styles.signUpText}>POST LAND</Text>
+      <TouchableOpacity style={styles.button} onPress={handleSignUp}>
+        {/* <MaterialIcons name="check" size={24} color="#333" /> */}
+        <Text style={styles.buttonText}>POST LAND</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={styles.signUpBtn}
+        style={styles.button}
         onPress={() => navigation.replace('Home')}
       >
-        <Text style={styles.signUpText}>BACK</Text>
+        {/* <MaterialIcons name="arrow-back" size={24} color="#333" /> */}
+        <Text style={styles.buttonText}>BACK</Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#fff',
+    flexGrow: 1,
+    backgroundColor: '#ADC178',
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 40,
   },
   logo: {
     fontWeight: 'bold',
-    fontSize: 20,
+    fontSize: 24,
     marginBottom: 20,
+    color: '#F0EAD2',
   },
-  inputView: {
-    width: '80%',
-    backgroundColor: '#f2f2f2',
-    borderRadius: 10,
-    height: 50,
+  input: {
+    width: '100%',
     marginBottom: 20,
-    justifyContent: 'center',
-    padding: 20,
-  },
-  inputText: {
-    height: 50,
-  },
-  imagePicker: {
-    backgroundColor: '#f2f2f2',
-    borderRadius: 10,
-    height: 50,
-    width: '80%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
-  },
-  imagePickerText: {
+    backgroundColor: '#DDE5B6',
     color: '#333',
+    borderRadius: 5,
+  },
+  textArea: {
+    height: 100,
+    textAlignVertical: 'top',
+  },
+  radioContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+    backgroundColor: '#DDE5B6',
+    padding: 10,
+    borderRadius: 5,
+  },
+  radioGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  button: {
+    width: '100%',
+    height: 50,
+    backgroundColor: '#DDE5B6',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 10,
+    borderRadius: 5,
+    flexDirection: 'row',
+    paddingHorizontal: 10,
+  },
+  buttonText: {
+    color: '#333',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginLeft: 5,
   },
   imagePreview: {
     width: 200,
     height: 200,
     borderRadius: 10,
     marginBottom: 20,
-  },
-  signUpBtn: {
-    width: '80%',
-    backgroundColor: '#333',
-    borderRadius: 10,
-    height: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  signUpText: {
-    color: '#fff',
   },
   error: {
     color: 'red',
@@ -313,28 +324,28 @@ const styles = StyleSheet.create({
     color: 'green',
     marginBottom: 10,
   },
-  radioContainer: {
+  locationContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: 20,
-  },
-  radioGroup: {
-    flexDirection: 'row',
-    marginLeft: 10,
-  },
-  radioButton: {
-    marginRight: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 5,
+    backgroundColor: '#DDE5B6',
+    paddingHorizontal: 10,
     borderRadius: 5,
   },
-  radioButtonSelected: {
-    backgroundColor: '#333',
-    borderColor: '#333',
+  buttonLocation: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  radioButtonText: {
-    color: '#333',
+  locationInput: {
+    flex: 1,
+    minHeight: 60,
+    paddingVertical: 10,
+    backgroundColor: '#DDE5B6',
+  },
+  locationScrollView: {
+    flex: 1,
+    maxHeight: 150, // Set maximum height for the ScrollView
   },
 });
 

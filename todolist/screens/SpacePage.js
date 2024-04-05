@@ -48,7 +48,7 @@ export const SpacePage = () => {
       <View style={styles.cardDetails}>
         <Text style={styles.cardTitle}>{item.landName}</Text>
         <Text style={styles.cardText}>Size: {item.landSize}</Text>
-        <Text style={styles.cardText}>Location: {item.location}</Text>
+        <Text style={styles.cardText}>Location: {item.locationName}</Text>
         <Text style={styles.cardText}>Price: {item.price}</Text>
       </View>
     </TouchableOpacity>
