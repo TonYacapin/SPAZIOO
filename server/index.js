@@ -74,7 +74,7 @@ app.post('/upload', async (req, res) => {
     
     console.log('Request Body:', req.body._parts);
    try {
-     const { landName, landSize, location, price, base64Image, option, isAvailable, description, seller } = req.body;
+     const { landName, landSize, locationName, location, price, base64Image, option, isAvailable, description, seller } = req.body;
      if (!base64Image) {
        return res.status(400).json({ message: 'No base64 image provided' });
      }
@@ -85,6 +85,7 @@ app.post('/upload', async (req, res) => {
      const newLand = new Land({
        landName,
        landSize,
+       locationName,
        location,
        price,
        imageUrl, // Save the imageUrl as data URI
