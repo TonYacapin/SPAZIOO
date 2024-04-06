@@ -17,7 +17,7 @@ const landSchema = new mongoose.Schema({
   },
   price: { type: String, required: true },
   imageUrl: { type: String, default: 'https://example.com/image3.jpg' },
-  option: { type: String, enum: ['Rent', 'Lease', 'Buy'], required: true },
+  option: { type: String, enum: ['Rent', 'Lease', 'Sale'], required: true },
   isAvailable: { type: Boolean, default: true },
   description: { type: String, required: true },
   seller: {

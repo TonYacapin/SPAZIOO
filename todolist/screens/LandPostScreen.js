@@ -86,7 +86,7 @@ const LandPostScreen = () => {
         data.base64Image = base64;
       }
 
-      const response = await axios.post('http://192.168.0.105:4000/upload', data, {
+      const response = await axios.post('http://192.168.0.100:4000/upload', data, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
@@ -218,7 +218,7 @@ const LandPostScreen = () => {
           <View style={styles.radioGroup}>
             <RadioButton.Item label="Rent" value="Rent" color="#ADC178" />
             <RadioButton.Item label="Lease" value="Lease" color="#ADC178" />
-            <RadioButton.Item label="Buy" value="Buy" color="#ADC178" />
+            <RadioButton.Item label="Sale" value="Sale" color="#ADC178" />
           </View>
         </RadioButton.Group>
       </View>

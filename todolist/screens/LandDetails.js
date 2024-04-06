@@ -4,11 +4,14 @@ import { Button, Card, Title, Paragraph, IconButton } from 'react-native-paper';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import address from './config.js';
+import { useNavigation } from '@react-navigation/native';
 
 const LandDetails = ({ route, navigation }) => {
   const { land } = route.params;
   const [sellerInfo, setSellerInfo] = useState(null);
   const [userEmail, setUserEmail] = useState('');
+  const [userId, SetUserId] = useState('');
+  const [userName, SetUserName] = useState('');
 
   useEffect(() => {
     // Function to fetch seller information
@@ -40,9 +43,28 @@ const LandDetails = ({ route, navigation }) => {
         console.error('Error fetching user email:', error);
       }
     };
-
+    const getUserId = async () => {
+      try {
+        const _id = await AsyncStorage.getItem('userid');
+        SetUserId(_id);
+      } catch (error) {
+        console.error('Error fetching user userid:', error);
+      }
+    };
+    const getUserName = async () => {
+      try {
+        const name = await AsyncStorage.getItem('name');
+        SetUserName(name);
+      } catch (error) {
+        console.error('Error fetching user name:', error);
+      }
+    };
     fetchSellerInfo();
     getUserEmail();
+    getUserId();
+    getUserName();
+
+
   }, [land.seller]);
 
   const handleBackButton = () => {
@@ -85,6 +107,93 @@ const LandDetails = ({ route, navigation }) => {
     console.log('Look at Google Maps');
   };
 
+  const handleMakeTransaction = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+    
+      if (!token) {
+        throw new Error('No token found. Please log in.');
+      }
+  
+      // Check if the user is the seller
+      if (sellerInfo && sellerInfo.email === userEmail) {
+        Alert.alert('You are the seller of this land. You cannot make a transaction.');
+        return;
+      }
+  
+      // Remove commas from the price and convert it to a number
+      const priceWithoutCommas = parseFloat(land.price.replace(/,/g, ''));
+  
+      let transactionType = '';
+      switch (land.option) {
+        case 'Sale':
+          transactionType = 'Sale';
+          break;
+        case 'Rent':
+          transactionType = 'Rent';
+          break;
+        case 'Lease':
+          transactionType = 'Lease';
+          break;
+        default:
+          throw new Error('Invalid land option. Please check the land details.');
+      }
+  
+      // Create a new transaction object
+      const transactionData = {
+        land: land._id,
+        buyer: userId,
+        transactionDate: new Date(),
+        transactionType, // Set based on land option
+        amount: priceWithoutCommas,
+        isCompleted: false
+      };
+  
+      console.log(transactionData);
+    
+      // Make POST request to create transaction
+      const transactionResponse = await axios.post(`http://${address}/api/transactions/`, transactionData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    
+      const savedTransaction = transactionResponse.data;
+    
+      // Create contract text
+      const contractText = `This contract represents the transaction for ${land.landName} between ${sellerInfo.name} and ${userName}.
+      The transaction amount is ${land.price} and the transaction date is ${new Date().toDateString()}.`;
+    
+      // Create a new contract object
+      const contractData = {
+        transaction: savedTransaction._id,
+        contractText,
+        signingParties: [sellerInfo._id, userId],
+        signatures: [],
+      };
+  
+      console.log(contractData)
+    
+      // Make POST request to create contract
+      const contractResponse = await axios.post(`http://${address}/api/transactionsContract/`, contractData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    
+      const savedContract = contractResponse.data;
+    
+      // Now you have the savedTransaction and savedContract
+      // You can navigate to a new screen, show a success message, etc.
+    
+      navigation.navigate('TransactionDetails', { transaction: savedTransaction, contract: savedContract });
+    } catch (error) {
+      console.error('Error making transaction:', error);
+      console.log('Error response:', error.response.data);
+      Alert.alert('Error', 'Failed to make transaction. Please try again.');
+    }
+  };
+  
   return (
     <View style={styles.container}>
       <Card elevation={5} style={styles.card}>
@@ -135,6 +244,15 @@ const LandDetails = ({ route, navigation }) => {
             >
               Google Maps
             </Button>
+            <Button
+              icon="wallet"
+              mode="contained"
+              onPress={handleMakeTransaction}
+              style={styles.button}
+              labelStyle={styles.buttonText}
+            >
+              Make Transaction
+            </Button>
           </View>
           <IconButton
             icon="heart-outline"
@@ -148,6 +266,7 @@ const LandDetails = ({ route, navigation }) => {
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,

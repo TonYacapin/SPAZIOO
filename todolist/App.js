@@ -19,6 +19,8 @@ import LandDetails from './screens/LandDetails';
 import ChatPage from './screens/ChatPage';
 import MapPage from './screens/MapPage';
 import GeocodingMap from './screens/GeocodingMap';
+import TransactionDetails from './screens/TransactionDetails';
+import TransactionsPage from './screens/TransactionsPage';
 
 
 
@@ -41,6 +43,8 @@ const App = () => {
         <Stack.Screen name="ChatPage" component={ChatPage} options={{headerShown: false}}/>
         <Stack.Screen name="MapPage" component={MapPage} options={{headerShown: false}}/>
         <Stack.Screen name="GeocodingMap" component={GeocodingMap} options={{headerShown: false}}/>
+        <Stack.Screen name="TransactionDetails" component={TransactionDetails} options={{headerShown: false}}/>
+        <Stack.Screen name="TransactionsPage" component={TransactionsPage} options={{headerShown: false}}/>
 
       </Stack.Navigator>
     </NavigationContainer>

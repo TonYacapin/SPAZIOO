@@ -21,10 +21,12 @@ const LoginPage = () => {
                 password: password,
             });
 
-            const { token, name } = response.data;
+            const { token, name, _id } = response.data;
             await AsyncStorage.setItem('token', token);
             await AsyncStorage.setItem('name', name);
             await AsyncStorage.setItem('email', email);
+            await AsyncStorage.setItem('userid', _id)
+
 
             console.log('Login successful!');
             navigation.replace('Home', { name: name });
