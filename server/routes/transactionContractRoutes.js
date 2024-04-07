@@ -1,12 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const transactionController = require('../Controllers/transactioncontractControllers');
+const transactionContractController = require('../Controllers/transactioncontractControllers');
 
-router.post('/', transactionController.createTransactionContract);
-router.get('/', transactionController.getAllTransactionContracts);
-router.get('/:id', transactionController.getTransactionContractById);
-router.put('/:id', transactionController.updateTransactionContractById);
-router.delete('/:id', transactionController.deleteTransactionContractById);
-
+router.post('/', transactionContractController.createTransactionContract);
+router.get('/', transactionContractController.getAllTransactionContracts);
+router.get('/:id', transactionContractController.getTransactionContractById);
+router.put('/:id', transactionContractController.updateTransactionContractById);
+router.delete('/:id', transactionContractController.deleteTransactionContractById);
+router.get('/getContractsForUser/:userId', transactionContractController.getContractsForUser);
+router.get('/getContractsForLand/:landId', transactionContractController.getContractsForLand); // New route for fetching contracts for a specific land
 
 module.exports = router;

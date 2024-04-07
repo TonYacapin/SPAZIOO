@@ -1,8 +1,8 @@
 import React from 'react';
-import { Text, View, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { Text, View, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { IconButton } from 'react-native-paper';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import espasyoIcon from '../assets/Logo1.png';
@@ -10,7 +10,6 @@ import espasyoIcon from '../assets/Logo1.png';
 const HomePage = () => {
   console.log("Rendering HomePage component");
   const navigation = useNavigation();
-  const route = useRoute();
 
   const [name, setName] = React.useState('');
 
@@ -44,7 +43,7 @@ const HomePage = () => {
       </View>
       <Text style={styles.welcomeText}>Welcome to Spazio</Text>
 
-      <View style={styles.content}>
+      <ScrollView contentContainerStyle={styles.content}>
         {/* Buttons Container */}
         <View style={styles.buttonsContainer}>
           <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Space')}>
@@ -53,7 +52,6 @@ const HomePage = () => {
               color="#F0EAD2"
               size={30}
               style={styles.iconButton}
-              onPress={() => navigation.navigate('Space')}
             />
             <Text style={styles.buttonText}>Space</Text>
           </TouchableOpacity>
@@ -63,7 +61,6 @@ const HomePage = () => {
               color="#F0EAD2"
               size={30}
               style={styles.iconButton}
-              onPress={() => navigation.navigate('LandPostScreen')}
             />
             <Text style={styles.buttonText}>Land Post</Text>
           </TouchableOpacity>
@@ -73,7 +70,6 @@ const HomePage = () => {
               color="#F0EAD2"
               size={30}
               style={styles.iconButton}
-              onPress={() => navigation.replace('Message')}
             />
             <Text style={styles.buttonText}>Message</Text>
           </TouchableOpacity>
@@ -83,7 +79,6 @@ const HomePage = () => {
               color="#F0EAD2"
               size={30}
               style={styles.iconButton}
-              onPress={() => navigation.navigate('TransactionsPage')}
             />
             <Text style={styles.buttonText}>Transactions</Text>
           </TouchableOpacity>
@@ -93,12 +88,11 @@ const HomePage = () => {
               color="#F0EAD2"
               size={30}
               style={styles.iconButton}
-              onPress={() => navigation.replace('MapPage')}
             />
             <Text style={styles.buttonText}>Map</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </ScrollView>
 
       <StatusBar style="auto" />
     </View>
@@ -107,8 +101,12 @@ const HomePage = () => {
 
 const styles = StyleSheet.create({
   buttonText: {
-    color: '#F0EAD2',
+    color: '#fff',
     marginTop: 5,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 10,
   },
   container: {
     flex: 1,
@@ -146,22 +144,23 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   content: {
-    flex: 1,
+    flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'flex-end',
   },
   buttonsContainer: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
     padding: 20,
     width: '100%',
-    marginTop: 20,
   },
   button: {
     backgroundColor: '#DDE5B6',
     padding: 10,
     borderRadius: 5,
-    width: '30%',
+    width: '45%', // Adjust this width as needed
+    marginBottom: 20,
     alignItems: 'center',
   },
   espasyoIcon: {

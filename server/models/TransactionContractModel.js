@@ -6,6 +6,11 @@ const transactionContractSchema = new mongoose.Schema({
     ref: 'Transaction',
     required: true
   },
+  land: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Land',
+    required: true
+  },
   contractText: {
     type: String,
     required: true

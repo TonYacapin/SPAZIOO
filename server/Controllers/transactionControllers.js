@@ -85,17 +85,29 @@ const deleteTransactionById = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-const getTransactionsForUser = async (req, res) => {
+
+// Get transactions by IDs
+// Get transactions by IDs
+const getTransactionsByIds = async (req, res) => {
   try {
-    const { userId } = req.params;
-    const transactions = await Transaction.find({ buyer: userId });
+    const { transactionIds } = req.query;
+    
+    console.log('Received transactionIds:', transactionIds);
+
+    if (!transactionIds || !Array.isArray(transactionIds) || transactionIds.length === 0) {
+      return res.status(400).json({ message: 'Invalid or empty transactionIds provided' });
+    }
+
+    const transactions = await Transaction.find({ _id: { $in: transactionIds } });
+
+    console.log('Fetched transactions:', transactions);
+
     res.status(200).json(transactions);
   } catch (error) {
-    console.error('Error in getTransactionsForUser:', error);
+    console.error('Error in getTransactionsByIds:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
-
 
 
 module.exports = {
@@ -104,5 +116,5 @@ module.exports = {
   getTransactionById,
   updateTransactionById,
   deleteTransactionById,
-  getTransactionsForUser,
+  getTransactionsByIds,
 };

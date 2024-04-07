@@ -63,8 +63,6 @@ const LandDetails = ({ route, navigation }) => {
     getUserEmail();
     getUserId();
     getUserName();
-
-
   }, [land.seller]);
 
   const handleBackButton = () => {
@@ -150,42 +148,67 @@ const LandDetails = ({ route, navigation }) => {
       };
   
       console.log(transactionData);
-    
+  
+      // Check for existing contract
+      const existingContractsResponse = await axios.get(`http://${address}/api/transactionsContract/getContractsForLand/${land._id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      const existingContracts = existingContractsResponse.data;
+      
+      const existingContractForUser = existingContracts.find(contract => {
+        return (
+          contract.signingParties.includes(sellerInfo._id) &&
+          contract.signingParties.includes(userId)
+        );
+      });
+  
+      if (existingContractForUser) {
+        Alert.alert(
+          'Existing Contract',
+          'There is an existing contract for this land. Please go to your transactions page to sign.'
+        );
+        return;
+      }
+  
       // Make POST request to create transaction
       const transactionResponse = await axios.post(`http://${address}/api/transactions/`, transactionData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-    
+  
       const savedTransaction = transactionResponse.data;
-    
+  
       // Create contract text
       const contractText = `This contract represents the transaction for ${land.landName} between ${sellerInfo.name} and ${userName}.
       The transaction amount is ${land.price} and the transaction date is ${new Date().toDateString()}.`;
-    
+  
       // Create a new contract object
       const contractData = {
         transaction: savedTransaction._id,
+        land: land._id,
         contractText,
         signingParties: [sellerInfo._id, userId],
         signatures: [],
       };
   
       console.log(contractData)
-    
+  
       // Make POST request to create contract
       const contractResponse = await axios.post(`http://${address}/api/transactionsContract/`, contractData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-    
+  
       const savedContract = contractResponse.data;
-    
+  
       // Now you have the savedTransaction and savedContract
       // You can navigate to a new screen, show a success message, etc.
-    
+  
       navigation.navigate('TransactionDetails', { transaction: savedTransaction, contract: savedContract });
     } catch (error) {
       console.error('Error making transaction:', error);

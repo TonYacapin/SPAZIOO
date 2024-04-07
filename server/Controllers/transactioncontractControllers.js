@@ -3,10 +3,11 @@ const TransactionContract = require('../models/TransactionContractModel');
 // Create a new transaction contract
 const createTransactionContract = async (req, res) => {
   try {
-    const { transaction, contractText, signingParties, signatures } = req.body;
+    const { transaction, land, contractText, signingParties, signatures } = req.body;
     
     const newTransactionContract = new TransactionContract({
       transaction,
+      land,
       contractText,
       signingParties,
       signatures
@@ -50,11 +51,11 @@ const getTransactionContractById = async (req, res) => {
 const updateTransactionContractById = async (req, res) => {
   try {
     const { id } = req.params;
-    const { transaction, contractText, signingParties, signatures } = req.body;
+    const { transaction, land, contractText, signingParties, signatures } = req.body;
 
     const updatedTransactionContract = await TransactionContract.findByIdAndUpdate(
       id,
-      { transaction, contractText, signingParties, signatures, updatedAt: Date.now() },
+      { transaction, land, contractText, signingParties, signatures, updatedAt: Date.now() },
       { new: true }
     );
 
@@ -84,6 +85,29 @@ const deleteTransactionContractById = async (req, res) => {
   }
 };
 
+// Get all transaction contracts for a specific user
+const getContractsForUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const contracts = await TransactionContract.find({ signingParties: userId });
+    
+    res.status(200).json(contracts);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get all transaction contracts for a specific land
+const getContractsForLand = async (req, res) => {
+  try {
+    const { landId } = req.params;
+    const contracts = await TransactionContract.find({ land: landId });
+    
+    res.status(200).json(contracts);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 module.exports = {
   createTransactionContract,
@@ -91,5 +115,6 @@ module.exports = {
   getTransactionContractById,
   updateTransactionContractById,
   deleteTransactionContractById,
-
+  getContractsForUser,
+  getContractsForLand,
 };
