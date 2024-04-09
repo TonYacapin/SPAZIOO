@@ -1,16 +1,16 @@
-import React from 'react';
-import { Text, View, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Image, TouchableWithoutFeedback } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { IconButton } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import espasyoIcon from '../assets/Logo1.png';
+import SidebarMenu from './SidebarMenu';
 
 const HomePage = () => {
-  console.log("Rendering HomePage component");
   const navigation = useNavigation();
-
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [name, setName] = React.useState('');
 
   React.useEffect(() => {
@@ -22,6 +22,14 @@ const HomePage = () => {
     };
     fetchName();
   }, []);
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!isSidebarOpen);
+  };
+
+  const closeSidebar = () => {
+    setSidebarOpen(false);
+  };
 
   return (
     <View style={styles.container}>
@@ -37,13 +45,13 @@ const HomePage = () => {
             size={24}
             color="#F0EAD2"
             style={styles.hamburgerIcon}
-            onPress={() => navigation.navigate('Login')}
+            onPress={toggleSidebar}
           />
         </View>
       </View>
       <Text style={styles.welcomeText}>Welcome to Spazio</Text>
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <View style={styles.content}>
         {/* Buttons Container */}
         <View style={styles.buttonsContainer}>
           <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Space')}>
@@ -54,15 +62,6 @@ const HomePage = () => {
               style={styles.iconButton}
             />
             <Text style={styles.buttonText}>Space</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('LandPostScreen')}>
-            <IconButton
-              icon="earth"
-              color="#F0EAD2"
-              size={30}
-              style={styles.iconButton}
-            />
-            <Text style={styles.buttonText}>Land Post</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={() => navigation.replace('Message')}>
             <IconButton
@@ -92,7 +91,18 @@ const HomePage = () => {
             <Text style={styles.buttonText}>Map</Text>
           </TouchableOpacity>
         </View>
-      </ScrollView>
+      </View>
+
+      {isSidebarOpen && (
+        <>
+          <TouchableWithoutFeedback onPress={closeSidebar}>
+            <View style={styles.overlay} />
+          </TouchableWithoutFeedback>
+          <View style={styles.sidebar}>
+            <SidebarMenu navigation={navigation} />
+          </View>
+        </>
+      )}
 
       <StatusBar style="auto" />
     </View>
@@ -100,14 +110,6 @@ const HomePage = () => {
 };
 
 const styles = StyleSheet.create({
-  buttonText: {
-    color: '#fff',
-    marginTop: 5,
-    textAlign: 'center',
-    textShadowColor: 'rgba(0, 0, 0, 0.75)',
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 10,
-  },
   container: {
     flex: 1,
     backgroundColor: '#ADC178',
@@ -163,6 +165,14 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     alignItems: 'center',
   },
+  buttonText: {
+    color: '#fff',
+    marginTop: 5,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 10,
+  },
   espasyoIcon: {
     width: 50,
     height: 30,
@@ -170,6 +180,25 @@ const styles = StyleSheet.create({
   userName: {
     color: '#F0EAD2',
     marginRight: 10,
+  },
+  sidebar: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#fff',
+    width: '80%',
+    zIndex: 100,
+    
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    zIndex: 99,
   },
 });
 

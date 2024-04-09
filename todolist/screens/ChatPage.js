@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, ScrollView, Alert } from 'react-native';
 import { TextInput, Button, Card, Paragraph, IconButton, Appbar } from 'react-native-paper';
 import io from 'socket.io-client';
@@ -7,7 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { decode } from 'base-64';
 import address from './config.js';
 
-const socket = io(`${address}`); // Update with your server URL
+const socket = io(`http://${address}`); // Update with your server URL
 
 function ChatPage({ route, navigation }) {
   const { sellerInfo, chatData } = route.params;
@@ -15,6 +15,9 @@ function ChatPage({ route, navigation }) {
   const [loggedInUserId, setLoggedInUserId] = useState('');
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
+  const [sendDisabled, setSendDisabled] = useState(true);
+
+  const scrollViewRef = useRef();
 
   useEffect(() => {
     const fetchLoggedInUserId = async () => {
@@ -32,6 +35,25 @@ function ChatPage({ route, navigation }) {
 
     fetchLoggedInUserId();
   }, []);
+
+  useEffect(() => {
+    socket.on('chat message', (message) => {
+      setMessages((prevMessages) => [...prevMessages, message]);
+      scrollToBottom(); // Scroll to the bottom when a new message is received
+    });
+
+    return () => {
+      socket.off('chat message');
+    };
+  }, []);
+
+  useEffect(() => {
+    setSendDisabled(inputMessage.trim() === '');
+  }, [inputMessage]);
+
+  const scrollToBottom = () => {
+    scrollViewRef.current.scrollToEnd({ animated: true });
+  };
 
   const handleInputChange = (text) => {
     setInputMessage(text);
@@ -65,23 +87,15 @@ function ChatPage({ route, navigation }) {
   
       setMessages((prevMessages) => [...prevMessages, response.data]);
       setInputMessage('');
+      setSendDisabled(true);
       socket.emit('chat message', newMessage); // Send newMessage to the server
+      scrollToBottom(); // Scroll to the bottom after sending a message
     } catch (error) {
       console.error('Error sending message:', error);
       Alert.alert('Error', 'Failed to send message. Please try again.');
     }
   };
   
-  useEffect(() => {
-    socket.on('chat message', (message) => {
-      setMessages((prevMessages) => [...prevMessages, message]);
-    });
-
-    return () => {
-      socket.off('chat message');
-    };
-  }, []);
-
   useEffect(() => {
     const fetchChatMessages = async () => {
       try {
@@ -101,6 +115,7 @@ function ChatPage({ route, navigation }) {
           },
         });
         setMessages(response.data);
+        scrollToBottom(); // Scroll to the bottom after fetching messages
       } catch (error) {
         console.error('Error fetching messages:', error);
         Alert.alert('Error', 'Failed to fetch messages. Please try again.');
@@ -149,7 +164,11 @@ function ChatPage({ route, navigation }) {
         <Appbar.BackAction onPress={() => navigation.goBack()} />
         <Appbar.Content title={sellerInfo ? sellerInfo.name : 'Chat'} />
       </Appbar.Header>
-      <ScrollView style={{ flex: 1, padding: 10 }}>
+      <ScrollView
+        ref={scrollViewRef}
+        style={{ flex: 1, padding: 10 }}
+        contentContainerStyle={{ flexGrow: 1, justifyContent: 'flex-end' }}
+      >
         {renderMessages()}
       </ScrollView>
       <View style={{ flexDirection: 'row', alignItems: 'center', padding: 10 }}>
@@ -163,6 +182,7 @@ function ChatPage({ route, navigation }) {
           mode="contained"
           onPress={handleSendMessage}
           style={{ borderRadius: 5, backgroundColor: '#DDE5B6' }}
+          disabled={sendDisabled}
         >
           Send
         </Button>

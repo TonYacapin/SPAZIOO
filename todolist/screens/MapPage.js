@@ -27,7 +27,7 @@ const MapScreen = () => {
   useEffect(() => {
     const fetchLands = async () => {
       try {
-        const response = await axios.get('http://192.168.0.101:4000/api/lands');
+        const response = await axios.get(`http://${address}/api/lands`);
         setLands(response.data);
         setLoading(false);
       } catch (error) {

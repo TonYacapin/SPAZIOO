@@ -86,7 +86,7 @@ const LandPostScreen = () => {
         data.base64Image = base64;
       }
 
-      const response = await axios.post('http://192.168.0.101:4000/upload', data, {
+      const response = await axios.post(`http://${address}/upload`, data, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
