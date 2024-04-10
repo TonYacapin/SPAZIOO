@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, TouchableOpacity, Text, StyleSheet, Alert } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
@@ -6,6 +6,28 @@ import * as Location from 'expo-location';
 export default function GeocodingMap({ navigation, route }) {
   const [selectedCoordinates, setSelectedCoordinates] = useState(null);
 
+
+
+  useEffect(() => {
+    // Request location permissions when component mounts
+    requestLocationPermission();
+  }, []);
+
+  const requestLocationPermission = async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert(
+          'Permission Denied',
+          'Please grant location access to use this feature.',
+          [{ text: 'OK' }]
+        );
+      }
+    } catch (error) {
+      console.error('Error requesting location permission:', error);
+      Alert.alert('Error', 'Failed to request location permission.');
+    }
+  };
   const handleMapPress = (event) => {
     const { coordinate } = event.nativeEvent;
     setSelectedCoordinates(coordinate);

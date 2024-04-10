@@ -5,6 +5,29 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import address from './config.js';
 
+export const fetchLands = async () => {
+  try {
+    // Retrieve the JWT token from AsyncStorage
+    const token = await AsyncStorage.getItem('token');
+
+    if (!token) {
+      throw new Error('No token found. Please log in.');
+    }
+
+    const response = await axios.get(`http://${address}/api/lands`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = response.data;
+    return data;
+  } catch (error) {
+    console.error('Error fetching lands:', error.message);
+    throw error;
+  }
+};
+
 export const SpacePage = () => {
   const navigation = useNavigation();
 
@@ -13,34 +36,23 @@ export const SpacePage = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchLands();
-  }, []);
-
-  const fetchLands = async () => {
-    try {
-      // Retrieve the JWT token from AsyncStorage
-      const token = await AsyncStorage.getItem('token');
-
-      if (!token) {
-        throw new Error('No token found. Please log in.');
+    const fetchRecentLands = async () => {
+      try {
+        setLoading(true);
+        const landsData = await fetchLands();
+        setLands(landsData);
+        setLoading(false);
+        setError(null);
+      } catch (error) {
+        console.error('Error fetching recent lands:', error.message);
+        setLands([]);
+        setLoading(false);
+        setError('Error fetching recent lands. Please try again.');
       }
+    };
 
-      const response = await axios.get(`http://${address}/api/lands`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = response.data;
-      setLands(data);
-      setLoading(false);
-      setError(null);
-    } catch (error) {
-      console.error('Error fetching lands:', error.message);
-      setError('Error fetching lands. Please try again.');
-      setLoading(false);
-    }
-  };
+    fetchRecentLands();
+  }, []);
 
   const renderLandItem = ({ item }) => (
     <TouchableOpacity style={styles.card} onPress={() => viewLandDetails(item)}>
@@ -55,7 +67,6 @@ export const SpacePage = () => {
   );
 
   const viewLandDetails = (land) => {
-    // Navigate to LandDetails screen with the land object
     navigation.navigate('LandDetails', { land });
   };
 
@@ -80,7 +91,7 @@ export const SpacePage = () => {
       <FlatList
         data={lands}
         renderItem={renderLandItem}
-        keyExtractor={item => item._id}
+        keyExtractor={(item) => item._id}
         contentContainerStyle={styles.flatListContent}
       />
       <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>

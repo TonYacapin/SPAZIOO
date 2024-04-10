@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Snackbar } from 'react-native-paper';
+import { Snackbar, DefaultTheme, IconButton } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// Import the custom theme
+import theme from './theme';
 
 const SidebarMenu = ({ navigation }) => {
   const [snackbarVisible, setSnackbarVisible] = useState(false);
@@ -27,31 +30,63 @@ const SidebarMenu = ({ navigation }) => {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: '#ADC178' }]}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <TouchableOpacity
+        onPress={() => navigateToScreen('User')}
+        style={[styles.menuItem, { backgroundColor: theme.colors.surface }]}
+      >
+        <IconButton
+          icon="account"
+          color={theme.colors.text}
+          size={24}
+          style={{ marginRight: 10 }}
+        />
+        <Text style={[styles.menuItemText, { color: theme.colors.text }]}>User</Text>
+      </TouchableOpacity>
       <TouchableOpacity
         onPress={() => navigateToScreen('LandPostScreen')}
-        style={[styles.menuItem, { backgroundColor: '#DDE5B6' }]}
+        style={[styles.menuItem, { backgroundColor: theme.colors.surface }]}
       >
-        <Text style={[styles.menuItemText, { color: '#345243' }]}>Post Land</Text>
+        <IconButton
+          icon="earth"
+          color={theme.colors.text}
+          size={24}
+          style={{ marginRight: 10 }}
+        />
+        <Text style={[styles.menuItemText, { color: theme.colors.text }]}>Post Land</Text>
       </TouchableOpacity>
       <TouchableOpacity
-        onPress={() => navigateToScreen('TransactionsPage')}
-        style={[styles.menuItem, { backgroundColor: '#DDE5B6' }]}
+        onPress={() => navigateToScreen('Message')}
+        style={[styles.menuItem, { backgroundColor: theme.colors.surface }]}
       >
-        <Text style={[styles.menuItemText, { color: '#345243' }]}>Transactions</Text>
+        <IconButton
+          icon="message"
+          color={theme.colors.text}
+          size={24}
+          style={{ marginRight: 10 }}
+        />
+        <Text style={[styles.menuItemText, { color: theme.colors.text }]}>Messages</Text>
       </TouchableOpacity>
+  
       <TouchableOpacity
         onPress={handleLogout}
-        style={[styles.menuItem, { backgroundColor: '#DDE5B6' }]}
+        style={[styles.menuItem, { backgroundColor: theme.colors.primary }]}
       >
-        <Text style={[styles.menuItemText, { color: '#345243' }]}>Logout</Text>
+        <IconButton
+          icon="logout"
+          color={theme.colors.text}
+          size={24}
+          style={{ marginRight: 10 }}
+        />
+        <Text style={[styles.menuItemText, { color: theme.colors.text }]}>Logout</Text>
       </TouchableOpacity>
-
+      
+      {/* Updated Snackbar */}
       <Snackbar
         visible={snackbarVisible}
         onDismiss={onDismissSnackbar}
-        duration={2000} // Snackbar will be visible for 2 seconds
-        style={{ backgroundColor: '#333', marginBottom: 20 }}
+        duration={2000}
+        style={{ marginBottom: 20 }} // Removed backgroundColor to use default color
         action={{
           label: 'Close',
           onPress: onDismissSnackbar,
@@ -70,11 +105,12 @@ const styles = StyleSheet.create({
     paddingTop: 50,
   },
   menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingVertical: 15,
     paddingHorizontal: 20,
     marginBottom: 10,
     borderRadius: 5,
-    alignItems: 'center',
   },
   menuItemText: {
     fontSize: 18,

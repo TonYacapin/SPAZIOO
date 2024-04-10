@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
-import { Button, Card, Title, Paragraph, IconButton } from 'react-native-paper';
+import { Button, Card, Title, Paragraph, IconButton, Provider as PaperProvider } from 'react-native-paper';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import address from './config.js';
 import { useNavigation } from '@react-navigation/native';
+import theme from './theme.js'; // Import your custom theme file
 
 const LandDetails = ({ route, navigation }) => {
   const { land } = route.params;
@@ -293,14 +294,14 @@ const LandDetails = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: theme.colors.background, // Use theme background color
     padding: 20,
   },
   card: {
     marginBottom: 20,
-    justifyContent: 'space-between',
-    borderRadius: 12,
+    borderRadius: theme.roundness, // Use theme border radius
     overflow: 'hidden',
+    backgroundColor: theme.colors.surface, // Use theme surface color
   },
   title: {
     fontSize: 24,
@@ -314,10 +315,12 @@ const styles = StyleSheet.create({
   info: {
     fontSize: 16,
     marginBottom: 5,
+    color: theme.colors.text, // Use theme text color
   },
   description: {
     fontSize: 16,
     lineHeight: 24,
+    color: theme.colors.text, // Use theme text color
   },
   cardActions: {
     flexDirection: 'column',
@@ -326,29 +329,33 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   backButton: {
-    borderRadius: 8,
+    borderRadius: theme.roundness,
     marginBottom: 10,
+    borderColor: theme.colors.primary, // Use theme primary color for border
   },
   backButtonText: {
     fontSize: 16,
+    color: theme.colors.primary, // Use theme primary color
   },
   buttonContainer: {
-    flexDirection: 'column', // Changed to vertical
+    flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
     marginTop: 10,
   },
   button: {
-    borderRadius: 8,
-    width: '70%', // Adjusted width for better visibility
+    borderRadius: theme.roundness,
+    width: '70%',
     marginBottom: 10,
+    backgroundColor: theme.colors.primary, // Use theme primary color for background
   },
   buttonText: {
     fontSize: 16,
+    color: theme.colors.surface, // Use theme surface color for text
   },
   favoriteButton: {
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.colors.surface, // Use theme surface color
     elevation: 0,
     alignSelf: 'flex-end',
   },
@@ -357,5 +364,6 @@ const styles = StyleSheet.create({
     height: 200,
   },
 });
+
 
 export default LandDetails;

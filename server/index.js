@@ -26,7 +26,7 @@ const ipAddress = process.env.SERVER_API;
 app.use(cors());
 
 
-app.use(express.json({ limit: '10mb' })); 
+app.use(express.json({ limit: '20mb' })); 
 
 
 app.use('/api/multer', multerRoutes)
