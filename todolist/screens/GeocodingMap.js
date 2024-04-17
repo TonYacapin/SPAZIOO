@@ -6,8 +6,6 @@ import * as Location from 'expo-location';
 export default function GeocodingMap({ navigation, route }) {
   const [selectedCoordinates, setSelectedCoordinates] = useState(null);
 
-
-
   useEffect(() => {
     // Request location permissions when component mounts
     requestLocationPermission();
