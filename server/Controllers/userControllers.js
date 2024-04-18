@@ -101,6 +101,64 @@ const getUserById = asyncHandler(async (req, res) => {
     throw new Error('User not found');
   }
 });
+//@description     Change user password
+//@route           PUT /api/user/changepassword
+//@access          Private
+const changePassword = asyncHandler(async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  const user = await User.findById(req.user._id);
 
-// Update the module exports to include the new controller function
-module.exports = { allUsers, registerUser, authUser, getUserById };
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
+  // Check if the current password matches
+  if (!(await user.matchPassword(currentPassword))) {
+    res.status(400);
+    throw new Error('Current password is incorrect');
+  }
+
+  // If the current password is correct, update the password
+  user.password = newPassword;
+  await user.save();
+
+  res.json({ message: 'Password changed successfully' });
+});
+
+
+//@description     Logout user
+//@route           POST /api/user/logout
+//@access          Private
+const logoutUser = asyncHandler(async (req, res) => {
+  // Perform any necessary actions for logout
+  res.json({ message: 'Logged out successfully' });
+});
+
+//@description     Delete user account
+//@route           DELETE /api/user/delete
+//@access          Private
+const deleteUserAccount = asyncHandler(async (req, res) => {
+  const { currentPassword } = req.body;
+
+  const user = await User.findById(req.user._id);
+
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
+  // Verify if the current password matches
+  const isPasswordCorrect = await user.matchPassword(currentPassword);
+  if (!isPasswordCorrect) {
+    res.status(401);
+    throw new Error('Invalid current password');
+  }
+
+  // Perform any necessary actions for account deletion
+  await user.remove();
+
+  res.json({ message: 'Account deleted successfully' });
+});
+
+module.exports = { allUsers, registerUser, authUser, getUserById, changePassword, logoutUser, deleteUserAccount };

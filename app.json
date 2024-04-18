@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "Spazio",
+    "slug": "administrator",
+    "extra": {
+      "eas": {
+        "projectId": "8ce5f9a4-b0f7-493e-8018-4804c0233301"
+      }
+    },
+    "android": {
+      "package": "com.abakus.administrator"
+    }
+  }
+}
