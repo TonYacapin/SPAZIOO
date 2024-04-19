@@ -101,10 +101,17 @@ const LandDetails = ({ route, navigation }) => {
       console.error('Error creating/accessing chat:', error);
     }
   };
-
   const handleGoogleMaps = () => {
-    console.log('Look at Google Maps');
+    navigation.navigate('MapPage', {
+      initialRegion: {
+        latitude: land.location.coordinates[1],
+        longitude: land.location.coordinates[0],
+        latitudeDelta: 0.5,
+        longitudeDelta: 0.5,
+      }
+    });
   };
+  
 
   const handleMakeTransaction = async () => {
     try {
@@ -158,7 +165,7 @@ const LandDetails = ({ route, navigation }) => {
       });
   
       const existingContracts = existingContractsResponse.data;
-      
+  
       const existingContractForUser = existingContracts.find(contract => {
         return (
           contract.signingParties.includes(sellerInfo._id) &&
@@ -193,7 +200,7 @@ const LandDetails = ({ route, navigation }) => {
         land: land._id,
         contractText,
         signingParties: [sellerInfo._id, userId],
-        signatures: [],
+        signatures: [userId], // Automatically add the current user's ID to signatures
       };
   
       console.log(contractData)
@@ -217,6 +224,7 @@ const LandDetails = ({ route, navigation }) => {
       Alert.alert('Error', 'Failed to make transaction. Please try again.');
     }
   };
+  
   
   return (
     <View style={styles.container}>

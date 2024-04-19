@@ -168,6 +168,21 @@ app.get('/api/lands', async (req, res) => {
     }
 });
 
+app.get('/api/lands/:id', async (req, res) => {
+    const landId = req.params.id;
+  
+    try {
+      const land = await Land.findById(landId);
+      if (!land) {
+        return res.status(404).json({ message: 'Land not found' });
+      }
+      res.json(land);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Server Error' });
+    }
+  });
+
 const port = process.env.PORT || 4000;
 
 const server = http.createServer(app);

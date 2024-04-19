@@ -165,7 +165,15 @@ const renderLandItem = ({ item }) => (
           <Text style={[styles.buttonText, { fontSize: scaledFont(13) }]}>Lists</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.button} onPress={() => navigation.replace('MapPage')}>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('MapPage', {
+  initialRegion: {
+    latitude: 16.2014,
+    longitude: 121.1656,
+    latitudeDelta: 0.5,
+    longitudeDelta: 0.5,
+  },
+})}>
+
           <IconButton
             icon="map-marker-outline"
             color={theme.colors.text}

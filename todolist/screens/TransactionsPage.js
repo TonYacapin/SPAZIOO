@@ -9,6 +9,7 @@ const TransactionsPage = ({ navigation }) => {
   const [userId, setUserId] = useState('');
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [landData, setLandData] = useState({});
   const theme = useTheme();
 
   const getUserId = async () => {
@@ -34,26 +35,33 @@ const TransactionsPage = ({ navigation }) => {
     try {
       const contractsResponse = await axios.get(`http://${address}/api/transactionsContract/getContractsForUser/${userId}`);
       const contracts = contractsResponse.data;
-
+  
       const contractsWithData = [];
-
+  
       for (const contract of contracts) {
         const transactionId = contract.transaction;
         const transactionResponse = await axios.get(`http://${address}/api/transactions/${transactionId}`);
         const transaction = transactionResponse.data;
-
+  
+        // Fetch land data for the transaction
+        const landResponse = await axios.get(`http://${address}/api/lands/${transaction.land}`);
+        const land = landResponse.data;
+        console.log(land)
+        console.log(transaction.land)
+        console.log(address)
+  
         contractsWithData.push({
           ...contract,
-          transaction: transaction || {} // Get corresponding transaction or empty object
+          transaction: transaction || {},
+          land: land || {} // Get corresponding land or empty object
         });
       }
-
+  
       setTransactionContracts(contractsWithData);
     } catch (error) {
       console.error('Error fetching transaction contracts:', error);
     }
   };
-
   const handleSignTransaction = async (transactionId) => {
     try {
       const contractResponse = await axios.get(`http://${address}/api/transactionsContract/${transactionId}`);
@@ -107,35 +115,38 @@ const TransactionsPage = ({ navigation }) => {
             Transactions
           </Text>
           <List.Section>
-            {transactionContracts.map((contract) => (
-              <View key={contract._id} style={{ marginBottom: 20 }}>
-                <List.Item
-                  title={`Transaction ID: ${contract.transaction._id}`}
-                  description={`Amount: $${contract.transaction.amount}`}
-                  titleStyle={{ color: theme.colors.text }}
-                  descriptionStyle={{ color: theme.colors.text }}
-                />
-                <ScrollView style={{ maxHeight: 200, marginBottom: 10 }}>
-                  <Text style={{ color: theme.colors.text }}>
-                    {contract.contractText}
-                  </Text>
-                </ScrollView>
-                <Divider />
-                <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
-                  {!contract.signatures.find(sig => sig.user === userId) && (
-                    <Button
-                      mode="contained"
-                      color={theme.colors.primary}
-                      onPress={() => handleSignTransaction(contract._id)}
-                      style={{ backgroundColor: '#DDE5B6' }}
-                      labelStyle={{ color: '#F0EAD2' }}
-                    >
-                      Sign
-                    </Button>
-                  )}
-                </View>
-              </View>
-            ))}
+          {transactionContracts.map((contract) => (
+  <View key={contract._id} style={{ marginBottom: 20 }}>
+    <Text style={{ fontSize: 16, fontWeight: 'bold', color: theme.colors.text }}>
+      Land: {contract.land.landName}
+    </Text>
+    <List.Item
+      title={`Transaction ID: ${contract.transaction._id}`}
+      description={`Amount: $${contract.transaction.amount}`}
+      titleStyle={{ color: theme.colors.text }}
+      descriptionStyle={{ color: theme.colors.text }}
+    />
+    <ScrollView style={{ maxHeight: 200, marginBottom: 10 }}>
+      <Text style={{ color: theme.colors.text }}>
+        {contract.contractText}
+      </Text>
+    </ScrollView>
+    <Divider />
+    <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
+      {!contract.signatures.find(sig => sig.user === userId) && (
+        <Button
+          mode="contained"
+          color={theme.colors.primary}
+          onPress={() => handleSignTransaction(contract._id)}
+          style={{ backgroundColor: '#DDE5B6' }}
+          labelStyle={{ color: '#F0EAD2' }}
+        >
+          Sign
+        </Button>
+      )}
+    </View>
+  </View>
+))}
           </List.Section>
         </View>
       </ScrollView>

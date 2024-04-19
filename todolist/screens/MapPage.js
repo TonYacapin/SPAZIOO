@@ -8,7 +8,8 @@ import ModalDropdown from 'react-native-modal-dropdown';
 
 import theme from './theme';
 
-const MapScreen = () => {
+const MapScreen = ({ route }) => {
+  const { initialRegion } = route.params;
   const navigation = useNavigation();
   const mapRef = useRef(null);
   const [lands, setLands] = useState([]);
@@ -18,12 +19,12 @@ const MapScreen = () => {
   const [searchResult, setSearchResult] = useState(null);
   const [dropdownOptions, setDropdownOptions] = useState([]);
 
-  const initialRegion = {
-    latitude: 16.2014,
-    longitude: 121.1656,
-    latitudeDelta: 0.5,
-    longitudeDelta: 0.5,
-  };
+  // const initialRegion = {
+  //   latitude: 16.2014,
+  //   longitude: 121.1656,
+  //   latitudeDelta: 0.5,
+  //   longitudeDelta: 0.5,
+  // };
 
   const isWeb = Platform.OS === 'web';
 
