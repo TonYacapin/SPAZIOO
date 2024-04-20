@@ -18,7 +18,25 @@ const SignUpScreen = () => {
         setError('Passwords do not match');
         return;
       }
-
+  
+      // Validate username
+      if (!/^[a-zA-Z\s]+$/.test(username)) {
+        setError('Username should contain only letters and spaces');
+        return;
+      }
+  
+      // Validate email
+      if (!/\S+@\S+\.\S+/.test(email)) {
+        setError('Invalid email address');
+        return;
+      }
+  
+      // Validate password
+      if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}/.test(password)) {
+        setError('Password should contain at least one lowercase letter, one uppercase letter, one number, one special character (@$!%*?&#), and be at least 8 characters long');
+        return;
+      }
+  
       const response = await fetch(`http://${address}/api/user/`, {
         method: 'POST',
         headers: {
@@ -28,10 +46,9 @@ const SignUpScreen = () => {
           name: username,
           email: email,
           password: password,
-        
         }),
       });
-
+  
       const data = await response.json();
       if (!response.ok) {
         setError(data.message);
@@ -51,6 +68,7 @@ const SignUpScreen = () => {
       setMessage(null);
     }
   };
+  
 
   // Function to enable/disable SignUp button based on password match
   const isSignUpDisabled = () => {
