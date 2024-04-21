@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, View, Text, Button, Platform, TextInput } from 'react-native';
+import { StyleSheet, View, Text, Button, Platform, TextInput, ActivityIndicator } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
@@ -19,13 +19,6 @@ const MapScreen = ({ route }) => {
   const [searchResult, setSearchResult] = useState(null);
   const [dropdownOptions, setDropdownOptions] = useState([]);
 
-  // const initialRegion = {
-  //   latitude: 16.2014,
-  //   longitude: 121.1656,
-  //   latitudeDelta: 0.5,
-  //   longitudeDelta: 0.5,
-  // };
-
   const isWeb = Platform.OS === 'web';
 
   const handleBackButton = () => {
@@ -38,7 +31,6 @@ const MapScreen = ({ route }) => {
         const response = await axios.get(`http://${address}/api/lands`);
         setLands(response.data);
         setLoading(false);
-        // Create dropdown options from unique land names
         const uniqueNames = [...new Set(response.data.map(land => `${land.landName} - ${land.locationName}`))];
         setDropdownOptions(uniqueNames);
       } catch (error) {
@@ -60,7 +52,6 @@ const MapScreen = ({ route }) => {
       setSearchResult(null);
       alert('Marker not found.');
     } else if (results.length === 1) {
-      // If only one result, center the map on that marker
       const result = results[0];
       setSearchResult(result);
       mapRef.current.animateToRegion({
@@ -70,11 +61,8 @@ const MapScreen = ({ route }) => {
         longitudeDelta: 0.05,
       });
     } else {
-      // If multiple results, set dropdown options
       setDropdownOptions(results.map(land => `${land.landName} - ${land.locationName}`));
-      // Clear previous search result
       setSearchResult(null);
-      // Alert user to choose from dropdown
       alert(`Multiple markers found with the name "${searchTerm}". Please choose one from the dropdown.`);
     }
   };
@@ -95,6 +83,7 @@ const MapScreen = ({ route }) => {
 
   return (
     <View style={styles.container}>
+      {loading && <ActivityIndicator size="large" color={theme.colors.primary} />}
       {!loading && !error && lands.length > 0 && (
         <>
           <MapView
@@ -130,19 +119,18 @@ const MapScreen = ({ route }) => {
               style={styles.dropdown}
               dropdownStyle={styles.dropdownList}
               onSelect={onSelectDropdown}
-              defaultIndex={null} // Set defaultIndex to null
+              defaultIndex={null}
             />
           )}
-          {!isWeb && (
+          {!isWeb && lands.length === 0 && (
             <View style={styles.backButtonContainer}>
               <Button title="Back" onPress={handleBackButton} color={theme.colors.logoutButton} />
             </View>
           )}
         </>
       )}
-      {loading && <Text>Loading...</Text>}
-      {error && <Text>{error}</Text>}
       {!loading && !error && lands.length === 0 && <Text>No data found.</Text>}
+      {error && <Text>{error}</Text>}
     </View>
   );
 };
@@ -160,11 +148,13 @@ const styles = StyleSheet.create({
   searchContainer: {
     position: 'absolute',
     top: 16,
-    left: 16,
-    flexDirection: 'row',
+    width: '100%',
     alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    paddingHorizontal: 16,
     backgroundColor: theme.colors.surface,
-    padding: 8,
+    paddingVertical: 8,
     borderRadius: 8,
     elevation: 4,
   },
