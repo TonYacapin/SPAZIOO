@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { List, Divider, Snackbar, useTheme, Button } from 'react-native-paper';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -9,8 +9,7 @@ const TransactionsPage = ({ navigation }) => {
   const [userId, setUserId] = useState('');
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [landData, setLandData] = useState({});
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
   const theme = useTheme();
 
   const getUserId = async () => {
@@ -34,7 +33,7 @@ const TransactionsPage = ({ navigation }) => {
 
   const fetchTransactionContracts = async () => {
     try {
-      setLoading(true); // Set loading to true before fetching data
+      setLoading(true);
 
       const contractsResponse = await axios.get(`http://${address}/api/transactionsContract/getContractsForUser/${userId}`);
       const contracts = contractsResponse.data;
@@ -46,32 +45,69 @@ const TransactionsPage = ({ navigation }) => {
         const transactionResponse = await axios.get(`http://${address}/api/transactions/${transactionId}`);
         const transaction = transactionResponse.data;
   
-        // Fetch land data for the transaction
         const landResponse = await axios.get(`http://${address}/api/lands/${transaction.land}`);
         const land = landResponse.data;
   
         contractsWithData.push({
           ...contract,
           transaction: transaction || {},
-          land: land || {} // Get corresponding land or empty object
+          land: land || {}
         });
       }
   
       setTransactionContracts(contractsWithData);
-      setLoading(false); // Set loading to false after fetching data
+      setLoading(false);
     } catch (error) {
       console.error('Error fetching transaction contracts:', error);
-      setLoading(false); // Set loading to false in case of error
+      setLoading(false);
     }
   };
 
   const handleSignTransaction = async (transactionId) => {
     try {
-      // Sign transaction logic
+      const contractResponse = await axios.get(`http://${address}/api/transactionsContract/${transactionId}`);
+      const contractData = contractResponse.data;
+
+      if (!contractData) {
+        console.error('Transaction contract not found.');
+        return;
+      }
+
+      const alreadySigned = contractData.signatures.some(signature => signature.user === userId);
+      if (alreadySigned) {
+        console.log('You have already signed this contract.');
+        return;
+      }
+
+      const updatedSignatures = [
+        ...contractData.signatures,
+        { user: userId, signature: 'SOME_SIGNATURE_DATA' }
+      ];
+
+      const updatedContractResponse = await axios.put(`http://${address}/api/transactionsContract/${contractData._id}`, {
+        signatures: updatedSignatures,
+        updatedAt: Date.now()
+      });
+
+      console.log('Transaction contract updated:', updatedContractResponse.data);
+
+      let message = '';
+      if (userId === contractData.landOwner) {
+        message = 'Wait for The Land Buyer to Sign to Complete the Transaction';
+      } else if (userId === contractData.landBuyer) {
+        message = 'Wait for The Land Owner to Signed to Complete the Transaction';
+      } else {
+        message = 'The transaction is pending.';
+      }
+
+      setSnackbarMessage(`You have successfully signed the contract. ${message}`);
+      setSnackbarVisible(true);
+      fetchTransactionContracts();
     } catch (error) {
       console.error('Error signing transaction:', error);
     }
   };
+
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
@@ -85,36 +121,38 @@ const TransactionsPage = ({ navigation }) => {
             </Text>
             <List.Section>
               {transactionContracts.map((contract) => (
-                <View key={contract._id} style={{ marginBottom: 20 }}>
-                  <Text style={{ fontSize: 16, fontWeight: 'bold', color: theme.colors.text }}>
-                    Land: {contract.land.landName}
-                  </Text>
-                  <List.Item
-                    title={`Transaction ID: ${contract.transaction._id}`}
-                    description={`Amount: $${contract.transaction.amount}`}
-                    titleStyle={{ color: theme.colors.text }}
-                    descriptionStyle={{ color: theme.colors.text }}
-                  />
-                  <ScrollView style={{ maxHeight: 200, marginBottom: 10 }}>
-                    <Text style={{ color: theme.colors.text }}>
-                      {contract.contractText}
+                <TouchableOpacity key={contract._id} onPress={() => navigation.navigate('TransactionDetails', { transaction: contract.transaction, contract })}>
+                  <View style={{ marginBottom: 20 }}>
+                    <Text style={{ fontSize: 16, fontWeight: 'bold', color: theme.colors.text }}>
+                      Land: {contract.land.landName}
                     </Text>
-                  </ScrollView>
-                  <Divider />
-                  <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
-                    {!contract.signatures.find(sig => sig.user === userId) && (
-                      <Button
-                        mode="contained"
-                        color={theme.colors.primary}
-                        onPress={() => handleSignTransaction(contract._id)}
-                        style={{ backgroundColor: '#DDE5B6' }}
-                        labelStyle={{ color: '#F0EAD2' }}
-                      >
-                        Sign
-                      </Button>
-                    )}
+                    <List.Item
+                      title={`Transaction ID: ${contract.transaction._id}`}
+                      description={`Amount: $${contract.transaction.amount}`}
+                      titleStyle={{ color: theme.colors.text }}
+                      descriptionStyle={{ color: theme.colors.text }}
+                    />
+                    <ScrollView style={{ maxHeight: 200, marginBottom: 10 }}>
+                      <Text style={{ color: theme.colors.text }}>
+                        {contract.contractText}
+                      </Text>
+                    </ScrollView>
+                    <Divider />
+                    <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
+                      {!contract.signatures.find(sig => sig.user === userId) && (
+                        <Button
+                          mode="contained"
+                          color={theme.colors.primary}
+                          onPress={() => handleSignTransaction(contract._id)}
+                          style={{ backgroundColor: '#DDE5B6' }}
+                          labelStyle={{ color: '#F0EAD2' }}
+                        >
+                          Sign
+                        </Button>
+                      )}
+                    </View>
                   </View>
-                </View>
+                </TouchableOpacity>
               ))}
             </List.Section>
           </View>
@@ -133,8 +171,8 @@ const TransactionsPage = ({ navigation }) => {
       <Snackbar
         visible={snackbarVisible}
         onDismiss={() => setSnackbarVisible(false)}
-        duration={3000} // Optional, time duration in ms
-        style={{ margin: 20 }} // Custom styles
+        duration={3000}
+        style={{ margin: 20 }}
         action={{
           label: 'OK',
           onPress: () => setSnackbarVisible(false)
