@@ -123,7 +123,7 @@ const TransactionsPage = ({ navigation }) => {
               {transactionContracts.map((contract) => (
                 <TouchableOpacity key={contract._id} onPress={() => navigation.navigate('TransactionDetails', { transaction: contract.transaction, contract })}>
                   <View style={{ marginBottom: 20 }}>
-                    <Text style={{ fontSize: 16, fontWeight: 'bold', color: theme.colors.text }}>
+                    <Text style={{ fontSize: 18, fontWeight: 'bold', color: theme.colors.text }}>
                       Land: {contract.land.landName}
                     </Text>
                     <List.Item
@@ -144,8 +144,8 @@ const TransactionsPage = ({ navigation }) => {
                           mode="contained"
                           color={theme.colors.primary}
                           onPress={() => handleSignTransaction(contract._id)}
-                          style={{ backgroundColor: '#DDE5B6' }}
-                          labelStyle={{ color: '#F0EAD2' }}
+                          style={{ backgroundColor: theme.colors.accent, paddingHorizontal: 12 }}
+                          labelStyle={{ color: '#fff' }}
                         >
                           Sign
                         </Button>
@@ -159,25 +159,25 @@ const TransactionsPage = ({ navigation }) => {
         )}
       </ScrollView>
       <Button
-  mode="contained"
-  background={theme.colors.primary}
-  onPress={() => navigation.goBack()}
-  style={{
-    margin: 20,
-    backgroundColor: '#ADC178',
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  }}
-  labelStyle={{
-    color: '#F5F5F5',
-    fontSize: 16,
-    fontWeight: 'bold',
-  }}
->
-  Back
-</Button>
+        mode="contained"
+        onPress={() => navigation.goBack()}
+        style={{
+          margin: 20,
+          backgroundColor: '#ADC178' ,
+          borderRadius: 12,
+          paddingVertical: 12,
+          paddingHorizontal: 24,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        labelStyle={{
+          color: '#fff',
+          fontSize: 16,
+          fontWeight: 'bold',
+        }}
+      >
+        Back
+      </Button>
 
       <Snackbar
         visible={snackbarVisible}
