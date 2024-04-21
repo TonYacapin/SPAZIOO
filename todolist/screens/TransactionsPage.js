@@ -46,9 +46,7 @@ const TransactionsPage = ({ navigation }) => {
         // Fetch land data for the transaction
         const landResponse = await axios.get(`http://${address}/api/lands/${transaction.land}`);
         const land = landResponse.data;
-        console.log(land)
-        console.log(transaction.land)
-        console.log(address)
+
   
         contractsWithData.push({
           ...contract,
