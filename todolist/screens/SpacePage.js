@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, FlatList, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import address from './config.js';
+
+// Import the theme
+import theme from './theme.js'; // Provide the correct path to your theme file
 
 export const fetchLands = async () => {
   try {
@@ -104,7 +108,7 @@ export const SpacePage = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: theme.colors.background, // Use theme colors
     padding: 16,
   },
   flatListContent: {
@@ -112,7 +116,7 @@ const styles = StyleSheet.create({
   },
   card: {
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.surface, // Use theme colors
     borderRadius: 12,
     marginBottom: 12,
     padding: 12,
@@ -138,14 +142,15 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 4,
+    color: theme.colors.text, // Use theme colors
   },
   cardText: {
     fontSize: 16,
-    color: '#333333',
+    color: theme.colors.text, // Use theme colors
     marginBottom: 2,
   },
   backButton: {
-    backgroundColor: '#333333',
+    backgroundColor: theme.colors.primary, // Use theme colors
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
@@ -153,7 +158,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   backButtonText: {
-    color: '#FFFFFF',
+    color: '#F5F5F5',
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -168,9 +173,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   errorText: {
-    color: 'red',
+    color: theme.colors.error, // Use theme colors
     fontSize: 16,
   },
 });
 
-export default SpacePage;
+// Wrap SpacePage with PaperProvider and pass the theme
+export default () => (
+  <PaperProvider theme={theme}>
+    <SpacePage />
+  </PaperProvider>
+);
