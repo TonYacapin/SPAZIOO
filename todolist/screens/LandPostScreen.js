@@ -16,34 +16,25 @@ import { decode } from 'base-64';
 import { MaterialIcons } from '@expo/vector-icons';
 
 const LandPostScreen = () => {
-  const [landName, setLandName] = useState('');
-  const [landSize, setLandSize] = useState('');
-  const [location, setLocation] = useState('');
-  const [locationName, setLocationName] = useState('');
-  const [price, setPrice] = useState('');
-  const [imageUri, setImageUri] = useState(null);
-  const [imageName, setImageName] = useState('');
-  const [base64Image, setBase64Image] = useState('');
-  const [error, setError] = useState(null);
-  const [message, setMessage] = useState(null);
-  const [option, setOption] = useState('Buy');
-  const [isAvailable, setIsAvailable] = useState(true);
-  const [description, setDescription] = useState('');
-  const [selectedLocation, setSelectedLocation] = useState({}); // Default empty object
+  const [state, setState] = useState({
+    landName: '',
+    landSize: '',
+    location: '',
+    locationName: '',
+    price: '',
+    imageUri: null,
+    imageName: '',
+    base64Image: '',
+    error: null,
+    message: null,
+    option: 'Buy',
+    isAvailable: true,
+    description: '',
+    selectedLocation: {},
+  });
 
   const navigation = useNavigation();
   const route = useRoute();
-
-  useEffect(() => {
-    if (route.params && route.params.selectedLocation) {
-      setSelectedLocation(route.params.selectedLocation);
-    }
-    if (route.params && route.params.selectedLocationAddress) {
-      setSelectedLocation(route.params.selectedCoordinate);
-      setLocationName(route.params.selectedLocationAddress);
-    }
-    console.log('Selected Location:', selectedLocation);
-  }, [route.params]);
 
   useEffect(() => {
     (async () => {
@@ -54,7 +45,48 @@ const LandPostScreen = () => {
     })();
   }, []);
 
+  useEffect(() => {
+    if (route.params && route.params.selectedLocation) {
+      setState(prevState => ({ ...prevState, selectedLocation: route.params.selectedLocation }));
+    }
+    if (route.params && route.params.selectedLocationAddress) {
+      setState(prevState => ({
+        ...prevState,
+        selectedLocation: route.params.selectedCoordinate,
+        locationName: route.params.selectedLocationAddress,
+      }));
+    }
+  }, [route.params]);
+
   const handleSignUp = async () => {
+    const {
+      landName,
+      landSize,
+      locationName,
+      price,
+      description,
+      imageUri,
+      imageName,
+      option,
+      selectedLocation,
+    } = state;
+
+    const requiredFields = [landName, landSize, locationName, price, description, imageUri];
+    if (requiredFields.some(field => !field)) {
+      setState(prevState => ({ ...prevState, error: 'Please fill out all fields' }));
+      return;
+    }
+
+    if (isNaN(parseFloat(price)) || parseFloat(price) <= 0) {
+      setState(prevState => ({ ...prevState, error: 'Price must be a valid number greater than 0' }));
+      return;
+    }
+
+    if (Object.keys(selectedLocation).length === 0) {
+      setState(prevState => ({ ...prevState, error: 'Please select a location' }));
+      return;
+    }
+
     try {
       const token = await AsyncStorage.getItem('token');
       if (!token) {
@@ -76,7 +108,7 @@ const LandPostScreen = () => {
         },
         price,
         option,
-        isAvailable,
+        isAvailable: true,
         description,
         seller: userId,
       };
@@ -94,22 +126,24 @@ const LandPostScreen = () => {
       });
 
       if (response.status >= 200 && response.status < 300) {
-        setMessage('Land posted successfully!');
-        setError(null);
-        setLandName('');
-        setLandSize('');
-        setLocationName('');
-        setPrice('');
-        setImageUri(null);
-        setImageName('');
-        setOption('Buy');
-        setIsAvailable(true);
-        setDescription('');
+        setState(prevState => ({
+          ...prevState,
+          message: 'Land posted successfully!',
+          error: null,
+          landName: '',
+          landSize: '',
+          locationName: '',
+          price: '',
+          imageUri: null,
+          imageName: '',
+          option: 'Buy',
+          isAvailable: true,
+          description: '',
+        }));
       }
     } catch (error) {
       console.error('Error posting land:', error);
-      setError('Error posting land. Please try again.');
-      setMessage(null);
+      setState(prevState => ({ ...prevState, error: 'Error posting land. Please try again.', message: null }));
     }
   };
 
@@ -144,8 +178,7 @@ const LandPostScreen = () => {
       });
 
       if (!result.cancelled && result.assets.length > 0 && result.assets[0].uri) {
-        setImageUri(result.assets[0].uri);
-        setImageName(result.assets[0].uri.split('/').pop());
+        setState(prevState => ({ ...prevState, imageUri: result.assets[0].uri, imageName: result.assets[0].uri.split('/').pop() }));
       } else {
         console.log('Image selection cancelled');
       }
@@ -161,28 +194,33 @@ const LandPostScreen = () => {
   };
 
   const handleLocationSelect = (location, address) => {
-    setSelectedLocation(location);
-    setLocationName(address);
+    setState(prevState => ({
+      ...prevState,
+      selectedLocation: location,
+      locationName: address,
+    }));
   };
+
+  const { landName, landSize, locationName, price, description, imageUri } = state;
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.logo}>Post Land</Text>
 
-      {error && <Text style={styles.error}>{error}</Text>}
-      {message && <Text style={styles.message}>{message}</Text>}
+      {state.error && <Text style={styles.error}>{state.error}</Text>}
+      {state.message && <Text style={styles.message}>{state.message}</Text>}
 
       <TextInput
         label="Land Name"
         value={landName}
-        onChangeText={(text) => setLandName(text)}
+        onChangeText={(text) => setState(prevState => ({ ...prevState, landName: text }))}
         style={styles.input}
       />
 
       <TextInput
         label="Land Size"
         value={landSize}
-        onChangeText={(text) => setLandSize(text)}
+        onChangeText={(text) => setState(prevState => ({ ...prevState, landSize: text }))}
         style={styles.input}
       />
 
@@ -191,7 +229,7 @@ const LandPostScreen = () => {
           <TextInput
             label="Location"
             value={locationName}
-            onChangeText={(text) => setLocationName(text)}
+            onChangeText={(text) => setState(prevState => ({ ...prevState, locationName: text }))}
             style={styles.locationInput}
             multiline
             textAlignVertical="top"
@@ -208,13 +246,13 @@ const LandPostScreen = () => {
       <TextInput
         label="Price"
         value={price}
-        onChangeText={(text) => setPrice(text)}
+        onChangeText={(text) => setState(prevState => ({ ...prevState, price: text }))}
         style={styles.input}
       />
 
       <View style={styles.radioContainer}>
         <Text>Option:</Text>
-        <RadioButton.Group onValueChange={(newValue) => setOption(newValue)} value={option}>
+        <RadioButton.Group onValueChange={(newValue) => setState(prevState => ({ ...prevState, option: newValue }))} value={state.option}>
           <View style={styles.radioGroup}>
             <RadioButton.Item label="Rent" value="Rent" color="#ADC178" />
             <RadioButton.Item label="Lease" value="Lease" color="#ADC178" />
@@ -226,21 +264,19 @@ const LandPostScreen = () => {
       <TextInput
         label="Land Description"
         value={description}
-        onChangeText={(text) => setDescription(text)}
+        onChangeText={(text) => setState(prevState => ({ ...prevState, description: text }))}
         multiline
         numberOfLines={4}
         style={[styles.input, styles.textArea]}
       />
 
       <TouchableOpacity style={styles.button} onPress={pickImage}>
-       {/* <MaterialIcons name="image" size={24} color="#333" /> */}
         <Text style={styles.buttonText}>SELECT IMAGE</Text>
       </TouchableOpacity>
 
       {imageUri && <Image source={{ uri: imageUri }} style={styles.imagePreview} />}
 
       <TouchableOpacity style={styles.button} onPress={handleSignUp}>
-        {/* <MaterialIcons name="check" size={24} color="#333" /> */}
         <Text style={styles.buttonText}>POST LAND</Text>
       </TouchableOpacity>
 
@@ -248,7 +284,6 @@ const LandPostScreen = () => {
         style={styles.button}
         onPress={() => navigation.replace('Home')}
       >
-        {/* <MaterialIcons name="arrow-back" size={24} color="#333" /> */}
         <Text style={styles.buttonText}>BACK</Text>
       </TouchableOpacity>
     </ScrollView>
