@@ -159,14 +159,25 @@ const TransactionsPage = ({ navigation }) => {
         )}
       </ScrollView>
       <Button
-        mode="contained"
-        color={theme.colors.primary}
-        onPress={() => navigation.goBack()}
-        style={{ margin: 20, backgroundColor: '#DDE5B6' }}
-        labelStyle={{ color: '#F0EAD2' }}
-      >
-        Back
-      </Button>
+  mode="contained"
+  background={theme.colors.primary}
+  onPress={() => navigation.goBack()}
+  style={{
+    margin: 20,
+    backgroundColor: '#ADC178',
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  }}
+  labelStyle={{
+    color: '#F5F5F5',
+    fontSize: 16,
+    fontWeight: 'bold',
+  }}
+>
+  Back
+</Button>
 
       <Snackbar
         visible={snackbarVisible}
