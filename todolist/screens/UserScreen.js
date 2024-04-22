@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, Button, Modal, TextInput, Alert } from 'react-native';
+import { Text, View, Modal, TextInput, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
+import { FontAwesome } from '@expo/vector-icons'; // Import FontAwesome icon library
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -81,15 +82,20 @@ const UserScreen = ({ navigation }) => {
 
   return (
     <PaperProvider theme={theme}>
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.colors.background }}>
+      <View style={styles.container}>
+        <FontAwesome name="user-circle" size={100} color={theme.colors.primary} style={styles.userIcon} />
         {userData && (
           <>
-            <Text style={{ marginBottom: 20, ...theme.fonts.medium }}>Username: {userData.name}</Text>
-            <Text style={{ marginBottom: 20, ...theme.fonts.medium }}>Email: {userData.email}</Text>
+            <Text style={styles.userInfo}>Username: {userData.name}</Text>
+            <Text style={styles.userInfo}>Email: {userData.email}</Text>
           </>
         )}
-        <Button title="Change Password" onPress={handleChangePassword} />
-        <Button title="Logout" onPress={handleLogout} />
+        <TouchableOpacity style={[styles.button, styles.changePasswordButton]} onPress={handleChangePassword}>
+          <Text style={styles.buttonText}>Change Password</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.button, styles.logoutButton]} onPress={handleLogout}>
+          <Text style={styles.buttonText}>Logout</Text>
+        </TouchableOpacity>
 
         <Modal
           visible={modalVisible}
@@ -97,35 +103,99 @@ const UserScreen = ({ navigation }) => {
           transparent={true}
           onRequestClose={() => setModalVisible(false)}
         >
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.colors.surface, padding: 20 }}>
+          <View style={styles.modalContainer}>
             <TextInput
-              style={{ marginBottom: 10, padding: 10, borderRadius: 5, backgroundColor: '#fff', width: '100%' }}
+              style={styles.input}
               placeholder="Current Password"
               secureTextEntry={true}
               value={currentPassword}
               onChangeText={setCurrentPassword}
             />
             <TextInput
-              style={{ marginBottom: 10, padding: 10, borderRadius: 5, backgroundColor: '#fff', width: '100%' }}
+              style={styles.input}
               placeholder="New Password"
               secureTextEntry={true}
               value={newPassword}
               onChangeText={setNewPassword}
             />
             <TextInput
-              style={{ marginBottom: 10, padding: 10, borderRadius: 5, backgroundColor: '#fff', width: '100%' }}
+              style={styles.input}
               placeholder="Confirm New Password"
               secureTextEntry={true}
               value={confirmNewPassword}
               onChangeText={setConfirmNewPassword}
             />
-            <Button title="Confirm" onPress={handleSubmitPasswordChange} />
-            <Button title="Cancel" onPress={() => setModalVisible(false)} />
+            <TouchableOpacity style={[styles.button, styles.confirmButton]} onPress={handleSubmitPasswordChange}>
+              <Text style={styles.buttonText}>Confirm</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={() => setModalVisible(false)}>
+              <Text style={styles.buttonText}>Cancel</Text>
+            </TouchableOpacity>
           </View>
         </Modal>
       </View>
     </PaperProvider>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: theme.colors.background,
+    padding: 20,
+  },
+  userIcon: {
+    marginBottom: 30,
+  },
+  userInfo: {
+    marginBottom: 20,
+    fontFamily: 'Roboto',
+    fontSize: 16,
+    color: theme.colors.text,
+  },
+  button: {
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 15,
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonText: {
+    fontFamily: 'Roboto',
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  changePasswordButton: {
+    backgroundColor: theme.colors.primary,
+  },
+  logoutButton: {
+    backgroundColor: theme.colors.logoutButton,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: theme.colors.surface,
+    padding: 20,
+  },
+  input: {
+    marginBottom: 15,
+    padding: 15,
+    borderRadius: 10,
+    backgroundColor: '#fff',
+    width: '100%',
+    fontFamily: 'Roboto',
+  },
+  confirmButton: {
+    backgroundColor: theme.colors.primary,
+  },
+  cancelButton: {
+    backgroundColor: theme.colors.surface,
+  },
+});
 
 export default UserScreen;
