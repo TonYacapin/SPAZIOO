@@ -67,7 +67,7 @@ const SidebarMenu = ({ navigation }) => {
         />
         <Text style={[styles.menuItemText, { color: theme.colors.text }]}>Messages</Text>
       </TouchableOpacity>
-  
+
       <TouchableOpacity
         onPress={handleLogout}
         style={[styles.menuItem, { backgroundColor: theme.colors.primary }]}
@@ -80,7 +80,7 @@ const SidebarMenu = ({ navigation }) => {
         />
         <Text style={[styles.menuItemText, { color: theme.colors.text }]}>Logout</Text>
       </TouchableOpacity>
-      
+
       {/* Updated Snackbar */}
       <Snackbar
         visible={snackbarVisible}
