@@ -22,6 +22,9 @@ export const fetchLands = async () => {
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      params: {
+        isAvailable: true // Filter lands where isAvailable is true
+      }
     });
 
     const data = response.data;

@@ -159,13 +159,21 @@ app.post('/api/lands', upload.single('image'), async (req, res) => {
 
 // Fetch all Lands
 app.get('/api/lands', async (req, res) => {
-    try {
-        const lands = await Land.find();
-        res.status(200).json(lands);
-    } catch (error) {
-        console.error('Error fetching lands:', error);
-        res.status(500).json({ message: 'Server Error' });
-    }
+  try {
+      const { isAvailable } = req.query;
+      let query = {};
+
+      // If isAvailable parameter is provided and it's true, filter lands by availability
+      if (isAvailable === 'true') {
+          query = { isAvailable: true };
+      }
+
+      const lands = await Land.find(query);
+      res.status(200).json(lands);
+  } catch (error) {
+      console.error('Error fetching lands:', error);
+      res.status(500).json({ message: 'Server Error' });
+  }
 });
 
 app.get('/api/lands/:id', async (req, res) => {
