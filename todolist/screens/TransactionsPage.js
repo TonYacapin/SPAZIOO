@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
 import { List, Divider, Snackbar, useTheme, Button } from 'react-native-paper';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -78,42 +78,57 @@ const TransactionsPage = ({ navigation }) => {
         return;
       }
   
-      const updatedSignatures = [
-        ...contractData.signatures,
-        { user: userId, signature: 'SOME_SIGNATURE_DATA' }
-      ];
+      // Show confirmation prompt before signing
+      Alert.alert(
+        'Confirm',
+        'Are you sure you want to sign this contract? The land will be removed from our list of lands.',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel'
+          },
+          {
+            text: 'Sign',
+            onPress: async () => {
+              const updatedSignatures = [
+                ...contractData.signatures,
+                { user: userId, signature: 'SOME_SIGNATURE_DATA' }
+              ];
   
-      const updatedContractResponse = await axios.put(`http://${address}/api/transactionsContract/${contractData._id}`, {
-        signatures: updatedSignatures,
-        updatedAt: Date.now()
-      });
+              const updatedContractResponse = await axios.put(`http://${address}/api/transactionsContract/${contractData._id}`, {
+                signatures: updatedSignatures,
+                updatedAt: Date.now()
+              });
   
-      console.log('Transaction contract updated:', updatedContractResponse.data);
+              console.log('Transaction contract updated:', updatedContractResponse.data);
   
-      // Update the land availability
-      const updatedLandResponse = await axios.put(`http://${address}/lands/${contractData.land}/updateAvailability`, {
-        isAvailable: false // Set land availability to false when signed
-      });
+              // Update the land availability
+              const updatedLandResponse = await axios.put(`http://${address}/lands/${contractData.land}/updateAvailability`, {
+                isAvailable: false // Set land availability to false when signed
+              });
   
-      console.log('Land availability updated:', updatedLandResponse.data);
+              console.log('Land availability updated:', updatedLandResponse.data);
   
-      let message = '';
-      if (userId === contractData.landOwner) {
-        message = 'Wait for The Land Buyer to Sign to Complete the Transaction';
-      } else if (userId === contractData.landBuyer) {
-        message = 'Wait for The Land Owner to Signed to Complete the Transaction';
-      } else {
-        message = 'The transaction is pending.';
-      }
+              let message = '';
+              if (userId === contractData.landOwner) {
+                message = 'Wait for The Land Buyer to Sign to Complete the Transaction';
+              } else if (userId === contractData.landBuyer) {
+                message = 'Wait for The Land Owner to Signed to Complete the Transaction';
+              } else {
+                message = 'Transaction Completed.';
+              }
   
-      setSnackbarMessage(`You have successfully signed the contract. ${message}`);
-      setSnackbarVisible(true);
-      fetchTransactionContracts();
+              setSnackbarMessage(`You have successfully signed the contract. ${message}`);
+              setSnackbarVisible(true);
+              fetchTransactionContracts();
+            }
+          }
+        ]
+      );
     } catch (error) {
       console.error('Error signing transaction:', error);
     }
   };
-  
   
 
   return (
