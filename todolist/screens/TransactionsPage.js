@@ -100,14 +100,14 @@ const TransactionsPage = ({ navigation }) => {
                 updatedAt: Date.now()
               });
   
-              console.log('Transaction contract updated:', updatedContractResponse.data);
+              console.log('Transaction contract updated:');
   
               // Update the land availability
               const updatedLandResponse = await axios.put(`http://${address}/lands/${contractData.land}/updateAvailability`, {
                 isAvailable: false // Set land availability to false when signed
               });
   
-              console.log('Land availability updated:', updatedLandResponse.data);
+              console.log('Land availability updated:');
   
               let message = '';
               if (userId === contractData.landOwner) {
