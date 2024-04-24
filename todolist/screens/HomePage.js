@@ -54,11 +54,14 @@ const HomePage = () => {
       setLoadingLands(true);
       const landsData = await fetchLands();
   
-      // Sort lands by creation date in descending order
-      landsData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      // Filter out lands that are not available
+      const availableLands = landsData.filter(land => land.isAvailable);
+  
+      // Sort available lands by creation date in descending order
+      availableLands.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   
       // Set the lands in reverse order to get the latest lands first
-      setLands(landsData.reverse().slice(0, 2));
+      setLands(availableLands.reverse().slice(0, 2));
   
       setLoadingLands(false);
       setLandsError(null);
@@ -69,7 +72,6 @@ const HomePage = () => {
       setLandsError('Error fetching recent lands. Please try again.');
     }
   };
-  
 
   useEffect(() => {
     fetchRecentLands();
