@@ -191,6 +191,29 @@ app.get('/api/lands/:id', async (req, res) => {
     }
   });
 
+  app.put('/lands/:landId/updateAvailability', async (req, res) => {
+    const landId = req.params.landId;
+    const { isAvailable } = req.body;
+  
+    try {
+      // Find the land by ID
+      const land = await Land.findById(landId);
+  
+      if (!land) {
+        return res.status(404).json({ message: 'Land not found' });
+      }
+  
+      // Update the land availability
+      land.isAvailable = isAvailable;
+      await land.save();
+  
+      return res.status(200).json({ message: 'Land availability updated successfully', land });
+    } catch (error) {
+      console.error('Error updating land availability:', error);
+      return res.status(500).json({ message: 'Server Error' });
+    }
+  });
+
 const port = process.env.PORT || 4000;
 
 const server = http.createServer(app);

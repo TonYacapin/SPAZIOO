@@ -176,7 +176,7 @@ const LandDetails = ({ route, navigation }) => {
       if (existingContractForUser) {
         Alert.alert(
           'Existing Contract',
-          'There is an existing contract for this land. Please go to your transactions page to sign.'
+          'There is an existing contract for this land. Please wait for the Owner to Sign the Contract.'
         );
         return;
       }
@@ -190,17 +190,17 @@ const LandDetails = ({ route, navigation }) => {
   
       const savedTransaction = transactionResponse.data;
   
-      // Create contract text
-      const contractText = `This contract represents the transaction for ${land.landName} between ${sellerInfo.name} and ${userName}.
+      // Create contract text with transaction type included
+      const contractText = `This contract represents the ${transactionType.toLowerCase()} transaction for ${land.landName} between ${sellerInfo.name} and ${userName}.
       The transaction amount is ${land.price} and the transaction date is ${new Date().toDateString()}.`;
   
-      // Create a new contract object
+      // Create a new contract object with the user already signed
       const contractData = {
         transaction: savedTransaction._id,
         land: land._id,
         contractText,
-        signingParties: [sellerInfo._id, userId],
-        signatures: [],
+        signingParties: [sellerInfo._id, userId], // Include userId as already signed
+        signatures: [{ user: userId, signature: 'SOME_SIGNATURE_DATA' }] // Add userId's signature
       };
   
       console.log(contractData)
@@ -224,6 +224,8 @@ const LandDetails = ({ route, navigation }) => {
       Alert.alert('Error', 'Failed to make transaction. Please try again.');
     }
   };
+  
+  
   
   return (
     <View style={styles.container}>
