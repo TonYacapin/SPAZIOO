@@ -56,6 +56,18 @@ const SidebarMenu = ({ navigation }) => {
         <Text style={[styles.menuItemText, { color: theme.colors.text }]}>Post Land</Text>
       </TouchableOpacity>
       <TouchableOpacity
+        onPress={() => navigateToScreen('ManageLand')}
+        style={[styles.menuItem, { backgroundColor: theme.colors.surface }]}
+      >
+        <IconButton
+          icon="cog"
+          color={theme.colors.text}
+          size={24}
+          style={{ marginRight: 10 }}
+        />
+        <Text style={[styles.menuItemText, { color: theme.colors.text }]}>Manage Land</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
         onPress={() => navigateToScreen('Message')}
         style={[styles.menuItem, { backgroundColor: theme.colors.surface }]}
       >
@@ -66,6 +78,19 @@ const SidebarMenu = ({ navigation }) => {
           style={{ marginRight: 10 }}
         />
         <Text style={[styles.menuItemText, { color: theme.colors.text }]}>Messages</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={() => navigateToScreen('LandPostScreen')}
+        style={[styles.menuItem, { backgroundColor: theme.colors.surface }]}
+      >
+        <IconButton
+          icon="book"
+          color={theme.colors.text}
+          size={24}
+          style={{ marginRight: 10 }}
+        />
+        <Text style={[styles.menuItemText, { color: theme.colors.text }]}>User Manual</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -113,7 +138,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   menuItemText: {
-    fontSize: 18,
+    fontSize: 15,
   },
 });
 

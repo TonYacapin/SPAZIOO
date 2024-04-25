@@ -156,6 +156,21 @@ app.post('/api/lands', upload.single('image'), async (req, res) => {
     }
 });
 
+app.get('/api/manageland/', async (req, res) => {
+  try {
+    // Extract owner userId from query parameter
+    const owner = req.query.seller;
+
+    // Find lands owned by the specified user
+    const lands = await Land.find({ seller: owner });
+
+    res.json(lands);
+  } catch (error) {
+    console.error('Error fetching lands:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 
 // Fetch all Lands
 app.get('/api/lands', async (req, res) => {
