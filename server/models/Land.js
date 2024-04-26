@@ -24,7 +24,12 @@ const landSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
-  }
+  },
+
+  ratings: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Rating'
+  }]
 });
 
 // Index the location field for geospatial queries
