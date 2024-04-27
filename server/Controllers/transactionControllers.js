@@ -49,6 +49,7 @@ const getTransactionById = async (req, res) => {
 };
 
 // Update a transaction by ID
+// Update a transaction by ID
 const updateTransactionById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -64,9 +65,20 @@ const updateTransactionById = async (req, res) => {
       return res.status(404).json({ message: 'Transaction not found' });
     }
 
-    res.status(200).json(updatedTransaction);
+    // Check if all required signatures are collected
+    // const allSignaturesCollected = updatedTransaction.signatures.length === 2; // Assuming there are only two signatures required (buyer and seller)
+
+    // // Update the isCompleted field based on signature collection
+    // const updatedTransactionWithCompletion = await Transaction.findByIdAndUpdate(
+    //   id,
+    //   { isCompleted: allSignaturesCollected },
+    //   { new: true }
+    // );
+
+    // res.status(200).json(updatedTransactionWithCompletion);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error updating transaction:', error);
+    res.status(500).json({ message: 'Error updating transaction', error: error.message });
   }
 };
 

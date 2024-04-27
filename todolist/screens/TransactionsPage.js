@@ -62,74 +62,86 @@ const TransactionsPage = ({ navigation }) => {
       setLoading(false);
     }
   };
+  console.log(transactionContracts)
   const handleSignTransaction = async (transactionId) => {
     try {
       const contractResponse = await axios.get(`http://${address}/api/transactionsContract/${transactionId}`);
       const contractData = contractResponse.data;
-  
+
+      console.log('contractData:', contractData)
+
       if (!contractData) {
         console.error('Transaction contract not found.');
         return;
       }
-  
+
       const alreadySigned = contractData.signatures.some(signature => signature.user === userId);
       if (alreadySigned) {
         console.log('You have already signed this contract.');
         return;
       }
-  
-      // Show confirmation prompt before signing
-      Alert.alert(
-        'Confirm',
-        'Are you sure you want to sign this contract? The land will be removed from our list of lands.',
-        [
-          {
-            text: 'Cancel',
-            style: 'cancel'
-          },
-          {
-            text: 'Sign',
-            onPress: async () => {
-              const updatedSignatures = [
-                ...contractData.signatures,
-                { user: userId, signature: 'SOME_SIGNATURE_DATA' }
-              ];
-  
-              const updatedContractResponse = await axios.put(`http://${address}/api/transactionsContract/${contractData._id}`, {
-                signatures: updatedSignatures,
-                updatedAt: Date.now()
-              });
-  
-              console.log('Transaction contract updated:');
-  
-              // Update the land availability
-              const updatedLandResponse = await axios.put(`http://${address}/lands/${contractData.land}/updateAvailability`, {
-                isAvailable: false // Set land availability to false when signed
-              });
-  
-              console.log('Land availability updated:');
-  
-              let message = '';
-              if (userId === contractData.landOwner) {
-                message = 'Wait for The Land Buyer to Sign to Complete the Transaction';
-              } else if (userId === contractData.landBuyer) {
-                message = 'Wait for The Land Owner to Signed to Complete the Transaction';
-              } else {
-                message = 'Transaction Completed.';
-              }
-  
-              setSnackbarMessage(`You have successfully signed the contract. ${message}`);
-              setSnackbarVisible(true);
-              fetchTransactionContracts();
-            }
-          }
-        ]
-      );
+
+      console.log('userId:', userId);
+      console.log('contractData.landOwner:', contractData.landOwner);
+      console.log('contractData.land:', contractData._id)
+
+      const isLandOwner = userId === contractData.landOwner;
+
+      console.log('isLandOwner:', isLandOwner);
+
+
+      const updatedData = {
+        signatures: [...contractData.signatures, { user: userId, signature: 'SOME_SIGNATURE_DATA' }],
+        updatedAt: Date.now()
+      };
+
+      if (isLandOwner) {
+        updatedData.isCompleted = true;
+      }
+
+      console.log('Updating contract with:', updatedData);
+
+      // Call the backend API to update the transaction contract
+      const updatedContractResponse = await axios.put(`http://${address}/api/transactionsContract/${contractData._id}`, updatedData);
+      console.log('Contract updated:', updatedContractResponse.data);
+
+      // Fetch the updated contract to get the transaction identifier
+      const updatedContract = await axios.get(`http://${address}/api/transactionsContract/${contractData._id}`);
+      const updatedContractData = updatedContract.data;
+
+      // Check if the user is the land owner and the transaction is completed
+      if (isLandOwner && updatedData.isCompleted) {
+        console.log('Updating land availability with:', { isAvailable: false });
+        console.log('land id', updatedContractData.land._id)
+        const updatedLandResponse = await axios.put(`http://${address}/lands/${updatedContractData.land._id}/updateAvailability`, { isAvailable: false });
+        console.log('Land availability updated:', updatedLandResponse.data);
+        console.log('Updating transaction with:', { isCompleted: true });
+        console.log('updatedContractData.transaction', updatedContractData.transaction)
+        const updatedTransactionResponse = await axios.put(`http://${address}/api/transactions/${updatedContractData.transaction}`, { isCompleted: true });
+        console.log('Transaction updated:', updatedTransactionResponse.data);
+      }
+
+
+      let message = '';
+      if (isLandOwner) {
+        message = 'Wait for The Land Buyer to Sign to Complete the Transaction';
+      } else if (userId === contractData.landBuyer) {
+        message = 'Wait for The Land Owner to Sign to Complete the Transaction';
+      } else {
+        message = 'Transaction Completed.';
+      }
+
+      setSnackbarMessage(`You have successfully signed the contract. ${message}`);
+      setSnackbarVisible(true);
+
+      fetchTransactionContracts();
     } catch (error) {
       console.error('Error signing transaction:', error);
     }
   };
-  
+
+
+
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
@@ -161,22 +173,35 @@ const TransactionsPage = ({ navigation }) => {
       </ScrollView>
       <Divider />
       <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
-      {contract.signatures.length === 0 || !contract.signatures.some(sig => sig.user === userId) ? (
-  <Button
-    mode="contained"
-    backgroundColor='#ADC178'
-    onPress={() => handleSignTransaction(contract._id)}
-    style={{ backgroundColor: '#ADC178', paddingHorizontal: 12 }}
-    labelStyle={{ color: '#ffffff' }}
-  >
-    Sign
-  </Button>
-) : (
-  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-    <Text style={{ color: theme.colors.disabled, marginRight: 8 }}>✓</Text>
-    <Text style={{ color: theme.colors.disabled }}>Already Signed</Text>
-  </View>
-)}
+        {contract.signatures.length === 0 || !contract.signatures.some(sig => sig.user === userId) ? (
+          <Button
+            mode="contained"
+            backgroundColor='#ADC178'
+            onPress={() => handleSignTransaction(contract._id)}
+            style={{ backgroundColor: '#ADC178', paddingHorizontal: 12 }}
+            labelStyle={{ color: '#ffffff' }}
+          >
+            Sign
+          </Button>
+        ) : (
+          <>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={{ color: theme.colors.disabled, marginRight: 8 }}>✓</Text>
+              <Text style={{ color: theme.colors.disabled }}>Already Signed</Text>
+            </View>
+            {contract.transaction.isCompleted && contract.land.seller !== userId && (
+              <Button
+                mode="contained"
+                backgroundColor='#ADC178'
+                onPress={() => handleRateLand(contract)}
+                style={{ backgroundColor: '#ADC178', paddingHorizontal: 12, marginLeft: 10 }}
+                labelStyle={{ color: '#ffffff' }}
+              >
+                Rate Land
+              </Button>
+            )}
+          </>
+        )}
       </View>
     </View>
   </TouchableOpacity>
@@ -190,7 +215,7 @@ const TransactionsPage = ({ navigation }) => {
         onPress={() => navigation.goBack()}
         style={{
           margin: 20,
-          backgroundColor: '#ADC178' ,
+          backgroundColor: '#ADC178',
           borderRadius: 12,
           paddingVertical: 12,
           paddingHorizontal: 24,
@@ -223,3 +248,4 @@ const TransactionsPage = ({ navigation }) => {
 };
 
 export default TransactionsPage;
+

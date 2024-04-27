@@ -31,21 +31,38 @@ const getAllTransactionContracts = async (req, res) => {
   }
 };
 
-// Get a single transaction contract by ID
+
+
 const getTransactionContractById = async (req, res) => {
   try {
     const { id } = req.params;
-    const transactionContract = await TransactionContract.findById(id);
+    const transactionContract = await TransactionContract.findById(id).populate({
+      path: 'land',
+      populate: {
+        path: 'seller',
+        model: 'User'
+      }
+    });
     
     if (!transactionContract) {
       return res.status(404).json({ message: 'Transaction contract not found' });
     }
     
-    res.status(200).json(transactionContract);
+    // Extract land owner information
+    const landOwner = transactionContract.land.seller;
+
+    // Add land owner information to the contract data
+    const contractData = {
+      ...transactionContract.toObject(),
+      landOwner: landOwner._id // Assuming land owner ID is needed
+    };
+
+    res.status(200).json(contractData);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 // Update a transaction contract by ID
 const updateTransactionContractById = async (req, res) => {
