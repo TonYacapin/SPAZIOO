@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { Snackbar, DefaultTheme, IconButton } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -8,6 +8,19 @@ import theme from './theme';
 
 const SidebarMenu = ({ navigation }) => {
   const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [isVerified, setIsVerified] = useState(false); // State to hold user's verification status
+
+  useEffect(() => {
+    const checkVerificationStatus = async () => {
+      try {
+        const verificationStatus = await AsyncStorage.getItem('isVerified'); // Retrieve verification status
+        setIsVerified(verificationStatus === 'true'); // Convert string to boolean
+      } catch (error) {
+        console.error('Error fetching verification status:', error.message);
+      }
+    };
+    checkVerificationStatus();
+  }, []);
 
   const navigateToScreen = (screenName) => {
     navigation.navigate(screenName);
@@ -30,7 +43,7 @@ const SidebarMenu = ({ navigation }) => {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <ScrollView contentContainerStyle={styles.container}>
       <TouchableOpacity
         onPress={() => navigateToScreen('User')}
         style={[styles.menuItem, { backgroundColor: theme.colors.surface }]}
@@ -43,30 +56,57 @@ const SidebarMenu = ({ navigation }) => {
         />
         <Text style={[styles.menuItemText, { color: theme.colors.text }]}>User</Text>
       </TouchableOpacity>
-      <TouchableOpacity
-        onPress={() => navigateToScreen('LandPostScreen')}
-        style={[styles.menuItem, { backgroundColor: theme.colors.surface }]}
-      >
-        <IconButton
-          icon="earth"
-          color={theme.colors.text}
-          size={24}
-          style={{ marginRight: 10 }}
-        />
-        <Text style={[styles.menuItemText, { color: theme.colors.text }]}>Post Land</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        onPress={() => navigateToScreen('ManageLand')}
-        style={[styles.menuItem, { backgroundColor: theme.colors.surface }]}
-      >
-        <IconButton
-          icon="cog"
-          color={theme.colors.text}
-          size={24}
-          style={{ marginRight: 10 }}
-        />
-        <Text style={[styles.menuItemText, { color: theme.colors.text }]}>Manage Land</Text>
-      </TouchableOpacity>
+
+      {/* Conditionally render "Post Land" if user is verified */}
+      {isVerified ? (
+        <TouchableOpacity
+          onPress={() => navigateToScreen('LandPostScreen')}
+          style={[styles.menuItem, { backgroundColor: theme.colors.surface }]}
+        >
+          <IconButton
+            icon="earth"
+            color={theme.colors.text}
+            size={24}
+            style={{ marginRight: 10 }}
+          />
+          <Text style={[styles.menuItemText, { color: theme.colors.text }]}>Post Land</Text>
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity
+          onPress={() => navigation.navigate('ContactUs')} // Navigate to Contact Us screen for verification
+          style={[styles.menuItem, { backgroundColor: theme.colors.surface }]}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <IconButton
+              icon="alert-circle-outline"
+              color={theme.colors.error}
+              size={24}
+              style={{ marginRight: 10 }}
+            />
+           <Text style={[styles.menuItemText, { color: theme.colors.text }]}>
+  You are not verified. To post land, please verify your account by contacting us.
+</Text>
+
+
+          </View>
+        </TouchableOpacity>
+      )}
+
+      {/* Conditionally render "Manage Land" if user is verified */}
+      {isVerified && (
+        <TouchableOpacity
+          onPress={() => navigateToScreen('ManageLand')}
+          style={[styles.menuItem, { backgroundColor: theme.colors.surface }]}
+        >
+          <IconButton
+            icon="cog"
+            color={theme.colors.text}
+            size={24}
+            style={{ marginRight: 10 }}
+          />
+          <Text style={[styles.menuItemText, { color: theme.colors.text }]}>Manage Land</Text>
+        </TouchableOpacity>
+      )}
+
       <TouchableOpacity
         onPress={() => navigateToScreen('Message')}
         style={[styles.menuItem, { backgroundColor: theme.colors.surface }]}
@@ -119,15 +159,15 @@ const SidebarMenu = ({ navigation }) => {
       >
         Logged out successfully!
       </Snackbar>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    padding: 20,
-    paddingTop: 50,
+    flexGrow: 1,
+    backgroundColor: theme.colors.background,
+    paddingVertical: 20,
   },
   menuItem: {
     flexDirection: 'row',
@@ -139,6 +179,7 @@ const styles = StyleSheet.create({
   },
   menuItemText: {
     fontSize: 15,
+    flex: 1,
   },
 });
 

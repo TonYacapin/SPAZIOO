@@ -16,34 +16,36 @@ const LoginPage = () => {
 
     const handleLogin = async () => {
         try {
-            const response = await axios.post(`http://${address}/api/user/login`, {
-                email: email,
-                password: password,
-            });
-
-            const { token, name, _id } = response.data;
-            await AsyncStorage.setItem('token', token);
-            await AsyncStorage.setItem('name', name);
-            await AsyncStorage.setItem('email', email);
-            await AsyncStorage.setItem('userid', _id)
-
-
-            console.log('Login successful!');
-            navigation.replace('Home', { name: name });
+          const response = await axios.post(`http://${address}/api/user/login`, {
+            email: email,
+            password: password,
+          });
+      
+          const { token, name, _id, isVerified } = response.data; // Assuming your backend sends the verification status
+          await AsyncStorage.setItem('token', token);
+          await AsyncStorage.setItem('name', name);
+          await AsyncStorage.setItem('email', email);
+          await AsyncStorage.setItem('userid', _id);
+          await AsyncStorage.setItem('isVerified', isVerified.toString()); // Convert boolean to string for AsyncStorage
+      
+          console.log('Login successful!');
+          console.log(isVerified.toString());
+          // Navigate to Home screen with user's name and verification status
+          navigation.replace('Home', { name: name, isVerified: isVerified });
         } catch (error) {
-            if (error.response) {
-                console.error('Login failed:', error.response.data.message);
-                setError( "Invalid Email or Password");
-            } else if (error.request) {
-                console.error('No response received:', error.request);
-                setError('No response received. Please check your network connection.');
-            } else {
-                console.error('Error:', error.message);
-                setError('An error occurred. Please try again later.');
-            }
+          if (error.response) {
+            console.error('Login failed:', error.response.data.message);
+            setError("Invalid Email or Password");
+          } else if (error.request) {
+            console.error('No response received:', error.request);
+            setError('No response received. Please check your network connection.');
+          } else {
+            console.error('Error:', error.message);
+            setError('An error occurred. Please try again later.');
+          }
         }
-    };
-
+      };
+      
     return (
         <View style={styles.container}>
             <Image source={espasyoLogo} style={styles.logo} />

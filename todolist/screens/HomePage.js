@@ -9,6 +9,8 @@ import espasyoIcon from '../assets/Logo1.png';
 import SidebarMenu from './SidebarMenu';
 import { fetchLands } from './SpacePage';
 
+
+
 // Import the custom theme
 import theme from './theme'; // Update the path as needed
 
@@ -30,15 +32,20 @@ const HomePage = () => {
   const [loadingLands, setLoadingLands] = useState(true);
   const [lands, setLands] = useState([]);
   const [landsError, setLandsError] = useState(null);
-
+  const [isVerified, setIsVerified] = useState(false); 
   useEffect(() => {
-    const fetchName = async () => {
-      const storedName = await AsyncStorage.getItem('name');
-      if (storedName) {
+    const fetchData = async () => {
+      try {
+        const storedName = await AsyncStorage.getItem('name');
+        const verificationStatus = await AsyncStorage.getItem('isVerified'); // Retrieve verification status
         setName(storedName);
+        setIsVerified(verificationStatus === 'true'); // Convert string to boolean
+        fetchRecentLands();
+      } catch (error) {
+        console.error('Error fetching data:', error.message);
       }
     };
-    fetchName();
+    fetchData();
   }, []);
 
   const toggleSidebar = () => {

@@ -75,6 +75,7 @@ const authUser = asyncHandler(async (req, res) => {
       name: user.name,
       email: user.email,
       isAdmin: user.isAdmin,
+      isVerified: user.isVerified,
       pic: user.pic,
       token: generateToken(user._id),
     });
@@ -94,6 +95,7 @@ const getUserById = asyncHandler(async (req, res) => {
       name: user.name,
       email: user.email,
       isAdmin: user.isAdmin,
+      isVerified: user.isVerified,
       pic: user.pic,
     });
   } else {
