@@ -61,7 +61,7 @@ const MapScreen = ({ route }) => {
         longitudeDelta: 0.05,
       });
     } else {
-      setDropdownOptions(results.map(land => `${land.landName} - ${land.locationName}`));
+    //  setDropdownOptions(results.map(land => `${land.landName} - ${land.locationName}`));
       setSearchResult(null);
       alert(`Multiple markers found with the name "${searchTerm}". Please choose one from the dropdown.`);
     }
@@ -113,7 +113,7 @@ const MapScreen = ({ route }) => {
             />
             <Button title="Search" onPress={searchMarker} color={theme.colors.primary} />
           </View>
-          {dropdownOptions.length > 0 && (
+         {/* {dropdownOptions.length > 0 && (
             <ModalDropdown
               options={dropdownOptions}
               style={styles.dropdown}
@@ -121,7 +121,7 @@ const MapScreen = ({ route }) => {
               onSelect={onSelectDropdown}
               defaultIndex={null}
             />
-          )}
+          )} */}
           {!isWeb && lands.length === 0 && (
             <View style={styles.backButtonContainer}>
               <Button title="Back" onPress={handleBackButton} color={theme.colors.logoutButton} />

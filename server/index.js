@@ -20,6 +20,7 @@ const chatRoutes = require('./routes/chatRoutes')
 const multerRoutes = require('./routes/multerRoute')
 const transactionRoutes = require('./routes/transactionRoutes');
 const transactionContractRoutes = require('./routes/transactionContractRoutes');
+const ratingRoutes = require('./routes/ratingRoutes');
 
 const ipAddress = process.env.SERVER_API;
 
@@ -35,6 +36,7 @@ app.use('/api/message', messageRoutes);
 app.use("/api/user", userRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/transactionsContract', transactionContractRoutes);
+app.use('/api', ratingRoutes);
 
 //app.use(bodyParser.json());
 //app.use(bodyParser.json({ limit: '5mb' }));

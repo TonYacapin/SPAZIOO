@@ -23,6 +23,7 @@ import TransactionDetails from './screens/TransactionDetails';
 import TransactionsPage from './screens/TransactionsPage';
 import ManageLand from './screens/ManageLand';
 import ContactUs from './screens/ContactUs';
+import CreateRating from './screens/CreateRating';
 
 
 
@@ -49,6 +50,8 @@ const App = () => {
         <Stack.Screen name="TransactionsPage" component={TransactionsPage} options={{headerShown: false}}/>
         <Stack.Screen name="ManageLand" component={ManageLand} options={{headerShown: false}}/>
         <Stack.Screen name="ContactUs" component={ContactUs} options={{headerShown: false}}/>
+        <Stack.Screen name="CreateRating" component={CreateRating} options={{headerShown: false}} />
+
       
 
       </Stack.Navigator>
