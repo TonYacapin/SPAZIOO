@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput } from 'react-native';
-import { useRoute } from '@react-navigation/native'; // Import useRoute hook
+import { useRoute } from '@react-navigation/native';
 import { Button, Snackbar } from 'react-native-paper';
 import axios from 'axios';
 import address from './config.js';
@@ -12,11 +12,29 @@ const CreateRating = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [visible, setVisible] = useState(false);
+  const [land, setLand] = useState(null);
 
-  const route = useRoute(); // Use useRoute hook to access route object
-
-  // Extract landId and userId from route.params
+  const route = useRoute();
   const { landId, userId } = route.params;
+
+  useEffect(() => {
+    fetchLandData();
+  }, []);
+
+  useEffect(() => {
+    // Log the land state whenever it changes
+    // console.log('Land:', land);
+  }, [land]); // Trigger the effect whenever land state changes
+
+  const fetchLandData = async () => {
+    try {
+      console.log(landId)
+      const landResponse = await axios.get(`http://${address}/api/lands/${landId}`);
+      setLand(landResponse.data);
+    } catch (error) {
+      console.error('Error fetching land data:', error);
+    }
+  };
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -31,6 +49,12 @@ const CreateRating = () => {
       setSuccess(true);
       setVisible(true);
       console.log('Rating created:', response.data);
+
+      // Update the land ratings array with the new rating
+      const updatedLand = { ...land };
+      updatedLand.ratings.push(response.data._id);
+      setLand(updatedLand);
+
     } catch (error) {
       setLoading(false);
       setError(error.response.data.message);
@@ -69,7 +93,7 @@ const CreateRating = () => {
           placeholder="Type your comment here..."
           placeholderTextColor="#A9A9A9"
           style={{ borderWidth: 1, borderColor: '#CCCCCC', padding: 5 }}
-          maxLength={255} // Maximum characters set to 255
+          maxLength={255}
         />
       </View>
       <View style={{ width: '100%', marginBottom: 20 }}>{renderStars()}</View>
