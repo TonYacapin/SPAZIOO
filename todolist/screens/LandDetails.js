@@ -357,7 +357,7 @@ const LandDetails = ({ route, navigation }) => {
                 style={styles.button}
                 labelStyle={styles.buttonText}
               >
-                Google Maps
+                Navigate to Maps
               </Button>
               <Button
                 icon="wallet"
