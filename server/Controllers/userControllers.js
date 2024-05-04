@@ -1,6 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const User = require("../models/UserModel");
 const generateToken = require("../config/generateToken");
+const bcrypt = require('bcrypt');
 
 //@description     Get or Search all users
 //@route           GET /api/user?search=
@@ -167,34 +168,41 @@ const deleteUserAccount = asyncHandler(async (req, res) => {
 //@description     Edit user
 //@route           POST /api/user/edit
 //@access          Private
+//@description     Edit user
+//@route           PUT /api/user/edit/:id
+//@access          Private
 const editUser = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const { name, email, password, isAdmin, isVerified } = req.body;
+  const user = await User.findById(req.params.id);
 
-  const user = await User.findById(id);
+  if (user) {
+    user.name = req.body.name || user.name;
+    user.email = req.body.email || user.email;
+    user.isAdmin = req.body.isAdmin || user.isAdmin;
+    user.isVerified = req.body.isVerified || user.isVerified;
 
-  if (!user) {
+    if (req.body.password) {
+      user.password = req.body.password;
+    }
+
+    const updatedUser = await user.save();
+
+
+    console.log(user.password)
+    res.json({
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      isAdmin: updatedUser.isAdmin,
+      isVerified: updatedUser.isVerified,
+    });
+  } else {
     res.status(404);
     throw new Error('User not found');
   }
-
-  // Update user fields
-  user.name = name || user.name;
-  user.email = email || user.email;
-  user.password = password || user.password;
-  user.isAdmin = isAdmin ?? user.isAdmin;
-  user.isVerified = isVerified ?? user.isVerified;
-
-  // Save updated user
-  const updatedUser = await user.save();
-
-  res.json({
-    _id: updatedUser._id,
-    name: updatedUser.name,
-    email: updatedUser.email,
-    isAdmin: updatedUser.isAdmin,
-    isVerified: updatedUser.isVerified,
-  });
 });
 
-module.exports = { allUsers, registerUser, authUser, getUserById, changePassword, logoutUser, deleteUserAccount, editUser};
+
+
+
+module.exports = { allUsers, registerUser, authUser, getUserById, changePassword, logoutUser, deleteUserAccount, editUser };
+
