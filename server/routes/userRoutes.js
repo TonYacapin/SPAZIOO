@@ -7,6 +7,7 @@ const {
   changePassword,
   logoutUser,
   deleteUserAccount,
+  editUser,
 } = require("../Controllers/userControllers");
 const { protect } = require("../middleware/auth");
 
@@ -26,5 +27,9 @@ router.put("/changepassword", protect, changePassword);
 router.post("/logout", protect, logoutUser);
 // Route to delete user account
 router.delete("/delete", protect, deleteUserAccount);
+
+
+router.route('/edit/:id').put(protect, editUser);
+
 
 module.exports = router;

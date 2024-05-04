@@ -163,4 +163,38 @@ const deleteUserAccount = asyncHandler(async (req, res) => {
   res.json({ message: 'Account deleted successfully' });
 });
 
-module.exports = { allUsers, registerUser, authUser, getUserById, changePassword, logoutUser, deleteUserAccount };
+
+//@description     Edit user
+//@route           POST /api/user/edit
+//@access          Private
+const editUser = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { name, email, password, isAdmin, isVerified } = req.body;
+
+  const user = await User.findById(id);
+
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
+  // Update user fields
+  user.name = name || user.name;
+  user.email = email || user.email;
+  user.password = password || user.password;
+  user.isAdmin = isAdmin ?? user.isAdmin;
+  user.isVerified = isVerified ?? user.isVerified;
+
+  // Save updated user
+  const updatedUser = await user.save();
+
+  res.json({
+    _id: updatedUser._id,
+    name: updatedUser.name,
+    email: updatedUser.email,
+    isAdmin: updatedUser.isAdmin,
+    isVerified: updatedUser.isVerified,
+  });
+});
+
+module.exports = { allUsers, registerUser, authUser, getUserById, changePassword, logoutUser, deleteUserAccount, editUser};
