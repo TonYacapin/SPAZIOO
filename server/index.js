@@ -174,22 +174,36 @@ app.get('/api/manageland/', async (req, res) => {
 });
 
 
+
+
 // Fetch all Lands
 app.get('/api/lands', async (req, res) => {
   try {
-      const { isAvailable } = req.query;
-      let query = {};
+    const { isAvailable, search } = req.query;
+    let query = {};
 
-      // If isAvailable parameter is provided and it's true, filter lands by availability
-      if (isAvailable === 'true') {
-          query = { isAvailable: true };
-      }
+    // If isAvailable parameter is provided and it's true, filter lands by availability
+    if (isAvailable === 'true') {
+      query = { isAvailable: true };
+    }
 
-      const lands = await Land.find(query);
-      res.status(200).json(lands);
+    // If search parameter is provided, filter lands by keyword
+    if (search) {
+      query = {
+        ...query,
+        $or: [
+          { landName: { $regex: search, $options: "i" } },
+          { locationName: { $regex: search, $options: "i" } },
+          { price: { $regex: search, $options: "i" } },
+        ]
+      };
+    }
+
+    const lands = await Land.find(query).populate('seller', 'name');
+    res.status(200).json(lands);
   } catch (error) {
-      console.error('Error fetching lands:', error);
-      res.status(500).json({ message: 'Server Error' });
+    console.error('Error fetching lands:', error);
+    res.status(500).json({ message: 'Server Error' });
   }
 });
 
@@ -228,6 +242,46 @@ app.get('/api/lands/:id', async (req, res) => {
     } catch (error) {
       console.error('Error updating land availability:', error);
       return res.status(500).json({ message: 'Server Error' });
+    }
+  });
+
+  app.put('/api/lands/:id', upload.single('image'), async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { landName, landSize, location, price, option, isAvailable, description, seller } = req.body;
+  
+      // Find the land by ID
+      const land = await Land.findById(id);
+      if (!land) {
+        return res.status(404).json({ message: 'Land not found' });
+      }
+  
+      // Update the land fields
+      land.landName = landName;
+      land.landSize = landSize;
+      land.location = location;
+      land.price = price;
+      land.option = option;
+      land.isAvailable = isAvailable;
+      land.description = description;
+      land.seller = seller;
+  
+      // If a new image is uploaded, update the imageUrl using Cloudinary
+      if (req.file) {
+        const result = await cloudinary.uploader.upload(req.file.buffer, {
+          folder: 'land_images',
+          format: 'jpg',
+        });
+        land.imageUrl = result.secure_url;
+      }
+  
+      // Save the updated land
+      await land.save();
+  
+      res.status(200).json({ message: 'Land updated successfully', land });
+    } catch (error) {
+      console.error('Error updating land:', error);
+      res.status(500).json({ message: 'Server Error' });
     }
   });
 
