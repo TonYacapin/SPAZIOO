@@ -179,12 +179,16 @@ app.get('/api/manageland/', async (req, res) => {
 // Fetch all Lands
 app.get('/api/lands', async (req, res) => {
   try {
-    const { isAvailable, search } = req.query;
+    const { isAvailable, isBanned, search } = req.query;
     let query = {};
 
     // If isAvailable parameter is provided and it's true, filter lands by availability
     if (isAvailable === 'true') {
       query = { isAvailable: true };
+    }
+
+    if (isBanned === 'false') {
+      query.isBanned = false;
     }
 
     // If search parameter is provided, filter lands by keyword

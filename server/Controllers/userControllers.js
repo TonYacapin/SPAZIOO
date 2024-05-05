@@ -178,16 +178,15 @@ const editUser = asyncHandler(async (req, res) => {
   if (user) {
     user.name = req.body.name || user.name;
     user.email = req.body.email || user.email;
-    user.isAdmin = req.body.isAdmin || user.isAdmin;
-    user.isVerified = req.body.isVerified || user.isVerified;
-    user.isBanned = req.body.isBanned || user.isBanned;
+    user.isAdmin = req.body.hasOwnProperty('isAdmin') ? req.body.isAdmin : user.isAdmin;
+    user.isVerified = req.body.hasOwnProperty('isVerified') ? req.body.isVerified : user.isVerified;
+    user.isBanned = req.body.hasOwnProperty('isBanned') ? req.body.isBanned : user.isBanned;
 
     if (req.body.password) {
       user.password = req.body.password;
     }
 
     const updatedUser = await user.save();
-
 
     res.json({
       _id: updatedUser._id,
@@ -196,13 +195,13 @@ const editUser = asyncHandler(async (req, res) => {
       isAdmin: updatedUser.isAdmin,
       isVerified: updatedUser.isVerified,
       isBanned: updatedUser.isBanned,
-
     });
   } else {
     res.status(404);
     throw new Error('User not found');
   }
 });
+
 
 
 

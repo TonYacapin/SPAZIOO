@@ -23,7 +23,8 @@ export const fetchLands = async () => {
         Authorization: `Bearer ${token}`,
       },
       params: {
-        isAvailable: true // Filter lands where isAvailable is true
+        isAvailable: true, // Filter lands where isAvailable is true
+        isBanned: false // Filter out banned lands
       }
     });
 

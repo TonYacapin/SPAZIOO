@@ -21,6 +21,7 @@ const LandDetails = ({ route, navigation }) => {
   useEffect(() => {
     // Function to fetch seller information
     const fetchSellerInfo = async () => {
+      console.log(land.seller);
       try {
         // Retrieve the JWT token from AsyncStorage
         const token = await AsyncStorage.getItem('token');
@@ -28,8 +29,8 @@ const LandDetails = ({ route, navigation }) => {
         if (!token) {
           throw new Error('No token found. Please log in.');
         }
-  
-        const response = await axios.get(`http://${address}/api/user/${land.seller}`, {
+     
+        const response = await axios.get(`http://${address}/api/user/${land.seller._id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
