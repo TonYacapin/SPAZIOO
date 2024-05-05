@@ -248,7 +248,7 @@ app.get('/api/lands/:id', async (req, res) => {
   app.put('/api/lands/:id', upload.single('image'), async (req, res) => {
     try {
       const { id } = req.params;
-      const { landName, landSize, location, price, option, isAvailable, description, seller } = req.body;
+      const { landName, landSize, location, price, option, isAvailable, description, seller, isBanned } = req.body;
   
       // Find the land by ID
       const land = await Land.findById(id);
@@ -265,6 +265,7 @@ app.get('/api/lands/:id', async (req, res) => {
       land.isAvailable = isAvailable;
       land.description = description;
       land.seller = seller;
+      land.isBanned = isBanned;
   
       // If a new image is uploaded, update the imageUrl using Cloudinary
       if (req.file) {

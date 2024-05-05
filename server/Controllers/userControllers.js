@@ -77,6 +77,7 @@ const authUser = asyncHandler(async (req, res) => {
       email: user.email,
       isAdmin: user.isAdmin,
       isVerified: user.isVerified,
+      isBanned: user.isBanned,
       pic: user.pic,
       token: generateToken(user._id),
     });
@@ -179,6 +180,7 @@ const editUser = asyncHandler(async (req, res) => {
     user.email = req.body.email || user.email;
     user.isAdmin = req.body.isAdmin || user.isAdmin;
     user.isVerified = req.body.isVerified || user.isVerified;
+    user.isBanned = req.body.isBanned || user.isBanned;
 
     if (req.body.password) {
       user.password = req.body.password;
@@ -187,13 +189,14 @@ const editUser = asyncHandler(async (req, res) => {
     const updatedUser = await user.save();
 
 
-    console.log(user.password)
     res.json({
       _id: updatedUser._id,
       name: updatedUser.name,
       email: updatedUser.email,
       isAdmin: updatedUser.isAdmin,
       isVerified: updatedUser.isVerified,
+      isBanned: updatedUser.isBanned,
+
     });
   } else {
     res.status(404);

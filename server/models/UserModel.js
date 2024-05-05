@@ -18,10 +18,14 @@ const userSchema = mongoose.Schema(
       default: false,
     },
     isVerified: {
-      type:Boolean,
+      type: Boolean,
       required: true,
       default: false,
-
+    },
+    isBanned: {
+      type: Boolean,
+      // required: true,
+      default: false,
     },
   },
   { timestamps: true } // corrected typo here

@@ -25,11 +25,11 @@ const landSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
-
   ratings: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Rating'
-  }]
+  }],
+  isBanned: { type: Boolean, default: false } // Adding isActive field
 });
 
 // Index the location field for geospatial queries
