@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Linking, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -21,16 +21,29 @@ const LoginPage = () => {
                 password: password,
             });
     
-            const { token, name, _id, isBanned } = response.data; // Assuming your backend sends the banned status
+            const { token, name, _id, isBanned, isVerified } = response.data; // Assuming your backend sends the banned status
             await AsyncStorage.setItem('token', token);
             await AsyncStorage.setItem('name', name);
             await AsyncStorage.setItem('email', email);
             await AsyncStorage.setItem('userid', _id);
             await AsyncStorage.setItem('isBanned', isBanned.toString()); // Convert boolean to string for AsyncStorage
-    
+            await AsyncStorage.setItem('isVerified', isVerified.toString()); // Convert boolean to string for AsyncStorage
             if (isBanned) {
-                // Alert the user that they are banned
-                alert('Sorry, you are banned. Please contact support for further assistance.');
+                // Alert the user that they are banned and provide a clickable email link
+                Alert.alert(
+                    'Banned',
+                    'Sorry, you are banned. Do you want to contact support for assistance?',
+                    [
+                        {
+                            text: 'No',
+                            style: 'cancel',
+                        },
+                        {
+                            text: 'Yes',
+                            onPress: () => Linking.openURL('mailto:SpazioAdmin@gmail.com'),
+                        },
+                    ]
+                );
             } else {
                 // Navigate to Home screen
                 console.log('Login successful!');
