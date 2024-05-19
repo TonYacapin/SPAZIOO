@@ -20,16 +20,16 @@ const LoginPage = () => {
                 email: email,
                 password: password,
             });
-    
-            const { token, name, _id, isBanned, isVerified } = response.data; // Assuming your backend sends the banned status
+
+            const { token, name, _id, isBanned, isVerified } = response.data;
             await AsyncStorage.setItem('token', token);
             await AsyncStorage.setItem('name', name);
             await AsyncStorage.setItem('email', email);
             await AsyncStorage.setItem('userid', _id);
-            await AsyncStorage.setItem('isBanned', isBanned.toString()); // Convert boolean to string for AsyncStorage
-            await AsyncStorage.setItem('isVerified', isVerified.toString()); // Convert boolean to string for AsyncStorage
+            await AsyncStorage.setItem('isBanned', isBanned.toString());
+            await AsyncStorage.setItem('isVerified', isVerified.toString());
+
             if (isBanned) {
-                // Alert the user that they are banned and provide a clickable email link
                 Alert.alert(
                     'Banned',
                     'Sorry, you are banned. Do you want to contact support for assistance?',
@@ -45,12 +45,10 @@ const LoginPage = () => {
                     ]
                 );
             } else {
-                // Navigate to Home screen
                 console.log('Login successful!');
                 navigation.replace('Home', { name: name });
             }
         } catch (error) {
-            // Error handling remains the same
             if (error.response) {
                 console.error('Login failed:', error.response.data.message);
                 setError("Invalid Email or Password");
@@ -63,7 +61,7 @@ const LoginPage = () => {
             }
         }
     };
-      
+
     return (
         <View style={styles.container}>
             <Image source={espasyoLogo} style={styles.logo} />

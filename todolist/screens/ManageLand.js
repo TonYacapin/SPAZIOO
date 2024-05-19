@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, FlatList, StyleSheet } from 'react-native';
+import { View, Text, Button, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import address from './config.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -16,6 +16,7 @@ const ManageLand = () => {
         if (id) {
           const response = await axios.get(`http://${address}/api/manageland?seller=${id}`);
           setLands(response.data);
+          console.log(response.data);
         } else {
           console.error('User ID not found');
         }
@@ -43,15 +44,20 @@ const ManageLand = () => {
   const renderLandItem = ({ item }) => (
     <View style={styles.landItem}>
       <Text>Land Name: {item.landName}</Text>
-      <Text>Location: {item.location.locationName}</Text>
+      <Text>Location: {item.locationName}</Text>
       <Text>Price: ${item.price}</Text>
       <Text>Availability: {item.isAvailable ? 'Available' : 'Not Available'}</Text>
-      <Button
-        title={item.isAvailable ? 'Mark Unavailable' : 'Mark Available'}
+      <TouchableOpacity
+        style={[styles.button, item.isAvailable ? styles.available : styles.unavailable]}
         onPress={() => updateAvailability(item._id, !item.isAvailable)}
-      />
+      >
+        <Text style={styles.buttonText}>
+          {item.isAvailable ? 'Mark Unavailable' : 'Mark Available'}
+        </Text>
+      </TouchableOpacity>
     </View>
   );
+  
 
   return (
     <View style={styles.container}>
@@ -82,6 +88,23 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
+  },
+
+  button: {
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  available: {
+    backgroundColor: '#CCCCCC',
+  },
+  unavailable: {
+    backgroundColor: '#ADC178', // Example color for unavailable state
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
   },
 });
 

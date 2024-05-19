@@ -120,18 +120,6 @@ const SidebarMenu = ({ navigation }) => {
         <Text style={[styles.menuItemText, { color: theme.colors.text }]}>Messages</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity
-        onPress={() => navigateToScreen('LandPostScreen')}
-        style={[styles.menuItem, { backgroundColor: theme.colors.surface }]}
-      >
-        <IconButton
-          icon="book"
-          color={theme.colors.text}
-          size={24}
-          style={{ marginRight: 10 }}
-        />
-        <Text style={[styles.menuItemText, { color: theme.colors.text }]}>User Manual</Text>
-      </TouchableOpacity>
 
       <TouchableOpacity
         onPress={handleLogout}
